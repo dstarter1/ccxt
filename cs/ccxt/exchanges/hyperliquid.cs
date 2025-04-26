@@ -314,7 +314,7 @@ public partial class hyperliquid : Exchange
     public override void setSandboxMode(object enabled)
     {
         base.setSandboxMode(enabled);
-        ((IDictionary<string,object>)this.options)["sandboxMode"] = enabled;
+        ((IDictionary<string, object>)this.options)["sandboxMode"] = enabled;
     }
 
     /**
@@ -346,15 +346,15 @@ public partial class hyperliquid : Exchange
         //         }
         //     ]
         //
-        object meta = this.safeList(response, "universe", new List<object>() {});
-        object result = new Dictionary<string, object>() {};
+        object meta = this.safeList(response, "universe", new List<object>() { });
+        object result = new Dictionary<string, object>() { };
         for (object i = 0; isLessThan(i, getArrayLength(meta)); postFixIncrement(ref i))
         {
-            object data = this.safeDict(meta, i, new Dictionary<string, object>() {});
+            object data = this.safeDict(meta, i, new Dictionary<string, object>() { });
             object id = i;
             object name = this.safeString(data, "name");
             object code = this.safeCurrencyCode(name);
-            ((IDictionary<string,object>)result)[(string)code] = new Dictionary<string, object>() {
+            ((IDictionary<string, object>)result)[(string)code] = new Dictionary<string, object>() {
                 { "id", id },
                 { "name", name },
                 { "code", code },
@@ -392,7 +392,7 @@ public partial class hyperliquid : Exchange
     public async override Task<object> fetchMarkets(object parameters = null)
     {
         parameters ??= new Dictionary<string, object>();
-        object rawPromises = new List<object> {this.fetchSwapMarkets(parameters), this.fetchSpotMarkets(parameters)};
+        object rawPromises = new List<object> { this.fetchSwapMarkets(parameters), this.fetchSpotMarkets(parameters) };
         object promises = await promiseAll(rawPromises);
         object swapMarkets = getValue(promises, 0);
         object spotMarkets = getValue(promises, 1);
@@ -445,14 +445,14 @@ public partial class hyperliquid : Exchange
         //     ]
         //
         //
-        object meta = this.safeDict(response, 0, new Dictionary<string, object>() {});
-        object universe = this.safeList(meta, "universe", new List<object>() {});
-        object assetCtxs = this.safeList(response, 1, new List<object>() {});
-        object result = new List<object>() {};
+        object meta = this.safeDict(response, 0, new Dictionary<string, object>() { });
+        object universe = this.safeList(meta, "universe", new List<object>() { });
+        object assetCtxs = this.safeList(response, 1, new List<object>() { });
+        object result = new List<object>() { };
         for (object i = 0; isLessThan(i, getArrayLength(universe)); postFixIncrement(ref i))
         {
-            object data = this.extend(this.safeDict(universe, i, new Dictionary<string, object>() {}), this.safeDict(assetCtxs, i, new Dictionary<string, object>() {}));
-            ((IDictionary<string,object>)data)["baseId"] = i;
+            object data = this.extend(this.safeDict(universe, i, new Dictionary<string, object>() { }), this.safeDict(assetCtxs, i, new Dictionary<string, object>() { }));
+            ((IDictionary<string, object>)data)["baseId"] = i;
             ((IList<object>)result).Add(data);
         }
         return this.parseMarkets(result);
@@ -475,7 +475,7 @@ public partial class hyperliquid : Exchange
         {
             return 0;
         }
-        object priceSplitted = ((string)priceStr).Split(new [] {((string)".")}, StringSplitOptions.None).ToList<object>();
+        object priceSplitted = ((string)priceStr).Split(new[] { ((string)".") }, StringSplitOptions.None).ToList<object>();
         if (isTrue(Precise.stringEq(priceStr, "0")))
         {
             // Significant digits is always 5 in this case
@@ -484,7 +484,8 @@ public partial class hyperliquid : Exchange
             object integerDigits = 0;
             // Calculate the price precision
             pricePrecision = mathMin(subtract(maxDecimals, amountPrecision), subtract(significantDigits, integerDigits));
-        } else if (isTrue(isTrue(Precise.stringGt(priceStr, "0")) && isTrue(Precise.stringLt(priceStr, "1"))))
+        }
+        else if (isTrue(isTrue(Precise.stringGt(priceStr, "0")) && isTrue(Precise.stringLt(priceStr, "1"))))
         {
             // Significant digits, always 5 in this case
             object significantDigits = 5;
@@ -500,7 +501,8 @@ public partial class hyperliquid : Exchange
             pricePrecision = add(leadingZeros, significantDigits);
             // Calculate the price precision based on maxDecimals - szDecimals and the calculated price precision from the previous step
             pricePrecision = mathMin(subtract(maxDecimals, amountPrecision), pricePrecision);
-        } else
+        }
+        else
         {
             // Count the numbers before the decimal separator
             object integerPart = this.safeString(priceSplitted, 0, "");
@@ -571,16 +573,16 @@ public partial class hyperliquid : Exchange
         //     ]
         // ]
         //
-        object first = this.safeDict(response, 0, new Dictionary<string, object>() {});
-        object second = this.safeList(response, 1, new List<object>() {});
-        object meta = this.safeList(first, "universe", new List<object>() {});
-        object tokens = this.safeList(first, "tokens", new List<object>() {});
-        object markets = new List<object>() {};
+        object first = this.safeDict(response, 0, new Dictionary<string, object>() { });
+        object second = this.safeList(response, 1, new List<object>() { });
+        object meta = this.safeList(first, "universe", new List<object>() { });
+        object tokens = this.safeList(first, "tokens", new List<object>() { });
+        object markets = new List<object>() { };
         for (object i = 0; isLessThan(i, getArrayLength(meta)); postFixIncrement(ref i))
         {
-            object market = this.safeDict(meta, i, new Dictionary<string, object>() {});
+            object market = this.safeDict(meta, i, new Dictionary<string, object>() { });
             object index = this.safeInteger(market, "index");
-            object extraData = this.safeDict(second, index, new Dictionary<string, object>() {});
+            object extraData = this.safeDict(second, index, new Dictionary<string, object>() { });
             object marketName = this.safeString(market, "name");
             // if (marketName.indexOf ('/') < 0) {
             //     // there are some weird spot markets in testnet, eg @2
@@ -589,14 +591,14 @@ public partial class hyperliquid : Exchange
             // const marketParts = marketName.split ('/');
             // const baseName = this.safeString (marketParts, 0);
             // const quoteId = this.safeString (marketParts, 1);
-            object fees = this.safeDict(this.fees, "spot", new Dictionary<string, object>() {});
+            object fees = this.safeDict(this.fees, "spot", new Dictionary<string, object>() { });
             object taker = this.safeNumber(fees, "taker");
             object maker = this.safeNumber(fees, "maker");
-            object tokensPos = this.safeList(market, "tokens", new List<object>() {});
+            object tokensPos = this.safeList(market, "tokens", new List<object>() { });
             object baseTokenPos = this.safeInteger(tokensPos, 0);
             object quoteTokenPos = this.safeInteger(tokensPos, 1);
-            object baseTokenInfo = this.safeDict(tokens, baseTokenPos, new Dictionary<string, object>() {});
-            object quoteTokenInfo = this.safeDict(tokens, quoteTokenPos, new Dictionary<string, object>() {});
+            object baseTokenInfo = this.safeDict(tokens, baseTokenPos, new Dictionary<string, object>() { });
+            object quoteTokenInfo = this.safeDict(tokens, quoteTokenPos, new Dictionary<string, object>() { });
             object baseName = this.safeString(baseTokenInfo, "name");
             object quoteId = this.safeString(quoteTokenInfo, "name");
             object bs = this.safeCurrencyCode(baseName);
@@ -709,7 +711,7 @@ public partial class hyperliquid : Exchange
                 symbol = add(add(symbol, ":"), settle);
             }
         }
-        object fees = this.safeDict(this.fees, "swap", new Dictionary<string, object>() {});
+        object fees = this.safeDict(this.fees, "swap", new Dictionary<string, object>() { });
         object taker = this.safeNumber(fees, "taker");
         object maker = this.safeNumber(fees, "maker");
         object amountPrecisionStr = this.safeString(market, "szDecimals");
@@ -803,7 +805,7 @@ public partial class hyperliquid : Exchange
         type = ((IList<object>)typeparametersVariable)[0];
         parameters = ((IList<object>)typeparametersVariable)[1];
         object isSpot = (isEqual(type, "spot"));
-        object reqType = ((bool) isTrue((isSpot))) ? "spotClearinghouseState" : "clearinghouseState";
+        object reqType = ((bool)isTrue((isSpot))) ? "spotClearinghouseState" : "clearinghouseState";
         object request = new Dictionary<string, object>() {
             { "type", reqType },
             { "user", userAddress },
@@ -857,13 +859,13 @@ public partial class hyperliquid : Exchange
                 object account = this.account();
                 object total = this.safeString(balance, "total");
                 object used = this.safeString(balance, "hold");
-                ((IDictionary<string,object>)account)["total"] = total;
-                ((IDictionary<string,object>)account)["used"] = used;
-                ((IDictionary<string,object>)spotBalances)[(string)code] = account;
+                ((IDictionary<string, object>)account)["total"] = total;
+                ((IDictionary<string, object>)account)["used"] = used;
+                ((IDictionary<string, object>)spotBalances)[(string)code] = account;
             }
             return this.safeBalance(spotBalances);
         }
-        object data = this.safeDict(response, "marginSummary", new Dictionary<string, object>() {});
+        object data = this.safeDict(response, "marginSummary", new Dictionary<string, object>() { });
         object result = new Dictionary<string, object>() {
             { "info", response },
             { "USDC", new Dictionary<string, object>() {
@@ -872,8 +874,8 @@ public partial class hyperliquid : Exchange
             } },
         };
         object timestamp = this.safeInteger(response, "time");
-        ((IDictionary<string,object>)result)["timestamp"] = timestamp;
-        ((IDictionary<string,object>)result)["datetime"] = this.iso8601(timestamp);
+        ((IDictionary<string, object>)result)["timestamp"] = timestamp;
+        ((IDictionary<string, object>)result)["datetime"] = this.iso8601(timestamp);
         return this.safeBalance(result);
     }
 
@@ -919,7 +921,47 @@ public partial class hyperliquid : Exchange
         //         "time": "1704290104840"
         //     }
         //
-        object data = this.safeList(response, "levels", new List<object>() {});
+        object data = this.safeList(response, "levels", new List<object>() { });
+        object result = new Dictionary<string, object>() {
+            { "bids", this.safeList(data, 0, new List<object>() {}) },
+            { "asks", this.safeList(data, 1, new List<object>() {}) },
+        };
+        object timestamp = this.safeInteger(response, "time");
+        return this.parseOrderBook(result, getValue(market, "symbol"), timestamp, "bids", "asks", "px", "sz");
+    }
+
+
+    public async Task<object> fetchMaxBuilderFee(string userAddress, string builderAddress)
+    {
+        object request = new Dictionary<string, object>() {
+            { "type", "maxBuilderFee" },
+            { "user", userAddress},
+            { "builder", builderAddress}
+        };
+        object response = await this.publicPostInfo(request);
+        //
+        //     {
+        //         "coin": "ETH",
+        //         "levels": [
+        //             [
+        //                 {
+        //                     "n": "2",
+        //                     "px": "2216.2",
+        //                     "sz": "74.0637"
+        //                 }
+        //             ],
+        //             [
+        //                 {
+        //                     "n": "2",
+        //                     "px": "2216.5",
+        //                     "sz": "70.5893"
+        //                 }
+        //             ]
+        //         ],
+        //         "time": "1704290104840"
+        //     }
+        //
+        object data = this.safeList(response, "levels", new List<object>() { });
         object result = new Dictionary<string, object>() {
             { "bids", this.safeList(data, 0, new List<object>() {}) },
             { "asks", this.safeList(data, 1, new List<object>() {}) },
@@ -945,28 +987,30 @@ public partial class hyperliquid : Exchange
         await this.loadMarkets();
         symbols = this.marketSymbols(symbols);
         // at this stage, to get tickers data, we use fetchMarkets endpoints
-        object response = new List<object>() {};
+        object response = new List<object>() { };
         object type = this.safeString(parameters, "type");
         parameters = this.omit(parameters, "type");
         if (isTrue(isEqual(type, "spot")))
         {
             response = await this.fetchSpotMarkets(parameters);
-        } else if (isTrue(isEqual(type, "swap")))
+        }
+        else if (isTrue(isEqual(type, "swap")))
         {
             response = await this.fetchSwapMarkets(parameters);
-        } else
+        }
+        else
         {
             response = await this.fetchMarkets(parameters);
         }
         // same response as under "fetchMarkets"
-        object result = new Dictionary<string, object>() {};
+        object result = new Dictionary<string, object>() { };
         for (object i = 0; isLessThan(i, getArrayLength(response)); postFixIncrement(ref i))
         {
             object market = getValue(response, i);
             object info = getValue(market, "info");
             object ticker = this.parseTicker(info, market);
             object symbol = this.safeString(ticker, "symbol");
-            ((IDictionary<string,object>)result)[(string)symbol] = ticker;
+            ((IDictionary<string, object>)result)[(string)symbol] = ticker;
         }
         return this.filterByArrayTickers(result, "symbol", symbols);
     }
@@ -1018,13 +1062,13 @@ public partial class hyperliquid : Exchange
         //     ]
         //
         //
-        object meta = this.safeDict(response, 0, new Dictionary<string, object>() {});
-        object universe = this.safeList(meta, "universe", new List<object>() {});
-        object assetCtxs = this.safeList(response, 1, new List<object>() {});
-        object result = new List<object>() {};
+        object meta = this.safeDict(response, 0, new Dictionary<string, object>() { });
+        object universe = this.safeList(meta, "universe", new List<object>() { });
+        object assetCtxs = this.safeList(response, 1, new List<object>() { });
+        object result = new List<object>() { };
         for (object i = 0; isLessThan(i, getArrayLength(universe)); postFixIncrement(ref i))
         {
-            object data = this.extend(this.safeDict(universe, i, new Dictionary<string, object>() {}), this.safeDict(assetCtxs, i, new Dictionary<string, object>() {}));
+            object data = this.extend(this.safeDict(universe, i, new Dictionary<string, object>() { }), this.safeDict(assetCtxs, i, new Dictionary<string, object>() { }));
             ((IList<object>)result).Add(data);
         }
         return this.parseFundingRates(result, symbols);
@@ -1142,12 +1186,13 @@ public partial class hyperliquid : Exchange
                 object timeframeInMilliseconds = multiply(this.parseTimeframe(timeframe), 1000);
                 since = this.sum(until, multiply(multiply(timeframeInMilliseconds, limit), -1));
                 useTail = false;
-            } else
+            }
+            else
             {
                 since = 0;
             }
         }
-        parameters = this.omit(parameters, new List<object>() {"until"});
+        parameters = this.omit(parameters, new List<object>() { "until" });
         object request = new Dictionary<string, object>() {
             { "type", "candleSnapshot" },
             { "req", new Dictionary<string, object>() {
@@ -1193,7 +1238,7 @@ public partial class hyperliquid : Exchange
         //         "v": "591.6427"
         //     }
         //
-        return new List<object> {this.safeInteger(ohlcv, "t"), this.safeNumber(ohlcv, "o"), this.safeNumber(ohlcv, "h"), this.safeNumber(ohlcv, "l"), this.safeNumber(ohlcv, "c"), this.safeNumber(ohlcv, "v")};
+        return new List<object> { this.safeInteger(ohlcv, "t"), this.safeNumber(ohlcv, "o"), this.safeNumber(ohlcv, "h"), this.safeNumber(ohlcv, "l"), this.safeNumber(ohlcv, "c"), this.safeNumber(ohlcv, "v") };
     }
 
     /**
@@ -1225,17 +1270,18 @@ public partial class hyperliquid : Exchange
         };
         if (isTrue(!isEqual(since, null)))
         {
-            ((IDictionary<string,object>)request)["type"] = "userFillsByTime";
-            ((IDictionary<string,object>)request)["startTime"] = since;
-        } else
+            ((IDictionary<string, object>)request)["type"] = "userFillsByTime";
+            ((IDictionary<string, object>)request)["startTime"] = since;
+        }
+        else
         {
-            ((IDictionary<string,object>)request)["type"] = "userFills";
+            ((IDictionary<string, object>)request)["type"] = "userFills";
         }
         object until = this.safeInteger(parameters, "until");
         parameters = this.omit(parameters, "until");
         if (isTrue(!isEqual(until, null)))
         {
-            ((IDictionary<string,object>)request)["endTime"] = until;
+            ((IDictionary<string, object>)request)["endTime"] = until;
         }
         object response = await this.publicPostInfo(this.extend(request, parameters));
         //
@@ -1271,10 +1317,10 @@ public partial class hyperliquid : Exchange
     {
         object market = this.market(symbol);
         object priceStr = this.numberToString(price);
-        object integerPart = getValue(((string)priceStr).Split(new [] {((string)".")}, StringSplitOptions.None).ToList<object>(), 0);
+        object integerPart = getValue(((string)priceStr).Split(new[] { ((string)".") }, StringSplitOptions.None).ToList<object>(), 0);
         object significantDigits = mathMax(5, ((string)integerPart).Length);
         object result = this.decimalToPrecision(price, ROUND, significantDigits, SIGNIFICANT_DIGITS, this.paddingMode);
-        object maxDecimals = ((bool) isTrue(getValue(market, "spot"))) ? 8 : 6;
+        object maxDecimals = ((bool)isTrue(getValue(market, "spot"))) ? 8 : 6;
         object subtractedValue = subtract(maxDecimals, this.precisionFromString(this.safeString(getValue(market, "precision"), "amount")));
         return this.decimalToPrecision(result, ROUND, subtractedValue, DECIMAL_PLACES, this.paddingMode);
     }
@@ -1302,7 +1348,7 @@ public partial class hyperliquid : Exchange
     public virtual object constructPhantomAgent(object hash, object isTestnet = null)
     {
         isTestnet ??= true;
-        object source = ((bool) isTrue((isTestnet))) ? "b" : "a";
+        object source = ((bool)isTrue((isTestnet))) ? "b" : "a";
         return new Dictionary<string, object>() {
             { "source", source },
             { "connectionId", hash },
@@ -1318,7 +1364,8 @@ public partial class hyperliquid : Exchange
         if (isTrue(isEqual(vaultAddress, null)))
         {
             data = add(data, "00");
-        } else
+        }
+        else
         {
             data = add(data, "01");
             data = add(data, vaultAddress);
@@ -1410,6 +1457,46 @@ public partial class hyperliquid : Exchange
         return this.signUserSignedAction(messageTypes, message);
     }
 
+    public virtual object buildApproveAgentSig(object message)
+    {
+        object messageTypes = new Dictionary<string, object>() {
+            { "HyperliquidTransaction:ApproveAgent", new List<object>() {new Dictionary<string, object>() {
+    { "name", "hyperliquidChain" },
+    { "type", "string" },
+}, new Dictionary<string, object>() {
+    { "name", "agentAddress" },
+    { "type", "address" },
+}, new Dictionary<string, object>() {
+    { "name", "agentName" },
+    { "type", "string" },
+}, new Dictionary<string, object>() {
+    { "name", "nonce" },
+    { "type", "uint64" },
+}} },
+        };
+        return this.signUserSignedAction(messageTypes, message);
+    }
+
+    public virtual object buildApproveFeeSig(object message)
+    {
+        object messageTypes = new Dictionary<string, object>() {
+            { "HyperliquidTransaction:ApproveBuilderFee", new List<object>() {new Dictionary<string, object>() {
+    { "name", "hyperliquidChain" },
+    { "type", "string" },
+}, new Dictionary<string, object>() {
+    { "name", "maxFeeRate" },
+    { "type", "string" },
+}, new Dictionary<string, object>() {
+    { "name", "builder" },
+    { "type", "address" },
+}, new Dictionary<string, object>() {
+    { "name", "nonce" },
+    { "type", "uint64" },
+}} },
+        };
+        return this.signUserSignedAction(messageTypes, message);
+    }
+
     public virtual object buildUsdClassSendSig(object message)
     {
         object messageTypes = new Dictionary<string, object>() {
@@ -1475,9 +1562,9 @@ public partial class hyperliquid : Exchange
         parameters ??= new Dictionary<string, object>();
         await this.loadMarkets();
         var orderglobalParamsVariable = this.parseCreateEditOrderArgs(null, symbol, type, side, amount, price, parameters);
-        var order = ((IList<object>) orderglobalParamsVariable)[0];
-        var globalParams = ((IList<object>) orderglobalParamsVariable)[1];
-        object orders = await this.createOrders(new List<object>() {((object)order)}, globalParams);
+        var order = ((IList<object>)orderglobalParamsVariable)[0];
+        var globalParams = ((IList<object>)orderglobalParamsVariable)[1];
+        object orders = await this.createOrders(new List<object>() { ((object)order) }, globalParams);
         return getValue(orders, 0);
     }
 
@@ -1513,9 +1600,9 @@ public partial class hyperliquid : Exchange
         //         }
         //     }
         //
-        object responseObj = this.safeDict(response, "response", new Dictionary<string, object>() {});
-        object data = this.safeDict(responseObj, "data", new Dictionary<string, object>() {});
-        object statuses = this.safeList(data, "statuses", new List<object>() {});
+        object responseObj = this.safeDict(response, "response", new Dictionary<string, object>() { });
+        object data = this.safeDict(responseObj, "data", new Dictionary<string, object>() { });
+        object statuses = this.safeList(data, "statuses", new List<object>() { });
         return this.parseOrders(statuses, null);
     }
 
@@ -1533,11 +1620,13 @@ public partial class hyperliquid : Exchange
         this.checkRequiredCredentials();
         object defaultSlippage = this.safeString(this.options, "defaultSlippage");
         defaultSlippage = this.safeString(parameters, "slippage", defaultSlippage);
+        object buiderFee = null;
+        object buiderAddress = null;
         object hasClientOrderId = false;
         for (object i = 0; isLessThan(i, getArrayLength(orders)); postFixIncrement(ref i))
         {
             object rawOrder = getValue(orders, i);
-            object orderParams = this.safeDict(rawOrder, "params", new Dictionary<string, object>() {});
+            object orderParams = this.safeDict(rawOrder, "params", new Dictionary<string, object>() { });
             object clientOrderId = this.safeString2(orderParams, "clientOrderId", "client_id");
             if (isTrue(!isEqual(clientOrderId, null)))
             {
@@ -1549,17 +1638,18 @@ public partial class hyperliquid : Exchange
             for (object i = 0; isLessThan(i, getArrayLength(orders)); postFixIncrement(ref i))
             {
                 object rawOrder = getValue(orders, i);
-                object orderParams = this.safeDict(rawOrder, "params", new Dictionary<string, object>() {});
+                object orderParams = this.safeDict(rawOrder, "params", new Dictionary<string, object>() { });
                 object clientOrderId = this.safeString2(orderParams, "clientOrderId", "client_id");
                 if (isTrue(isEqual(clientOrderId, null)))
                 {
-                    throw new ArgumentsRequired ((string)add(this.id, " createOrders() all orders must have clientOrderId if at least one has a clientOrderId")) ;
+                    throw new ArgumentsRequired((string)add(this.id, " createOrders() all orders must have clientOrderId if at least one has a clientOrderId"));
                 }
             }
         }
-        parameters = this.omit(parameters, new List<object>() {"slippage", "clientOrderId", "client_id", "slippage", "triggerPrice", "stopPrice", "stopLossPrice", "takeProfitPrice", "timeInForce"});
+        parameters = this.omit(parameters, new List<object>() { "slippage", "clientOrderId", "client_id", "slippage", "triggerPrice", "stopPrice", "stopLossPrice", "takeProfitPrice", "timeInForce" });
         object nonce = this.milliseconds();
-        object orderReq = new List<object>() {};
+        object orderReq = new List<object>() { };
+        bool isGroupping = true;
         for (object i = 0; isLessThan(i, getArrayLength(orders)); postFixIncrement(ref i))
         {
             object rawOrder = getValue(orders, i);
@@ -1572,10 +1662,12 @@ public partial class hyperliquid : Exchange
             object isBuy = (isEqual(side, "BUY"));
             object amount = this.safeString(rawOrder, "amount");
             object price = this.safeString(rawOrder, "price");
-            object orderParams = this.safeDict(rawOrder, "params", new Dictionary<string, object>() {});
+            object orderParams = this.safeDict(rawOrder, "params", new Dictionary<string, object>() { });
             object clientOrderId = this.safeString2(orderParams, "clientOrderId", "client_id");
             object slippage = this.safeString(orderParams, "slippage", defaultSlippage);
-            object defaultTimeInForce = ((bool) isTrue((isMarket))) ? "ioc" : "gtc";
+            buiderFee = this.safeString(orderParams, "builderFee");
+            buiderAddress = this.safeString(orderParams, "builderAddress");
+            object defaultTimeInForce = ((bool)isTrue((isMarket))) ? "ioc" : "gtc";
             object postOnly = this.safeBool(orderParams, "postOnly", false);
             if (isTrue(postOnly))
             {
@@ -1587,45 +1679,54 @@ public partial class hyperliquid : Exchange
             object stopLossPrice = this.safeString(orderParams, "stopLossPrice", triggerPrice);
             object takeProfitPrice = this.safeString(orderParams, "takeProfitPrice");
             object isTrigger = (isTrue(stopLossPrice) || isTrue(takeProfitPrice));
+            isGroupping = (isTrue(stopLossPrice) || isTrue(takeProfitPrice));
             object px = null;
             if (isTrue(isMarket))
             {
                 if (isTrue(isEqual(price, null)))
                 {
-                    throw new ArgumentsRequired ((string)add(this.id, "  market orders require price to calculate the max slippage price. Default slippage can be set in options (default is 5%).")) ;
+                    throw new ArgumentsRequired((string)add(this.id, "  market orders require price to calculate the max slippage price. Default slippage can be set in options (default is 5%)."));
                 }
-                px = ((bool) isTrue((isBuy))) ? Precise.stringMul(price, Precise.stringAdd("1", slippage)) : Precise.stringMul(price, Precise.stringSub("1", slippage));
+                px = ((bool)isTrue((isBuy))) ? Precise.stringMul(price, Precise.stringAdd("1", slippage)) : Precise.stringMul(price, Precise.stringSub("1", slippage));
                 px = this.priceToPrecision(symbol, px); // round after adding slippage
-            } else
+            }
+            else
             {
                 px = this.priceToPrecision(symbol, price);
             }
             object sz = this.amountToPrecision(symbol, amount);
             object reduceOnly = this.safeBool(orderParams, "reduceOnly", false);
-            object orderType = new Dictionary<string, object>() {};
-            if (isTrue(isTrigger))
-            {
-                object isTp = false;
-                if (isTrue(!isEqual(takeProfitPrice, null)))
-                {
-                    triggerPrice = this.priceToPrecision(symbol, takeProfitPrice);
-                    isTp = true;
-                } else
-                {
-                    triggerPrice = this.priceToPrecision(symbol, stopLossPrice);
-                }
-                ((IDictionary<string,object>)orderType)["trigger"] = new Dictionary<string, object>() {
-                    { "isMarket", isMarket },
-                    { "triggerPx", triggerPrice },
-                    { "tpsl", ((bool) isTrue((isTp))) ? "tp" : "sl" },
-                };
-            } else
-            {
-                ((IDictionary<string,object>)orderType)["limit"] = new Dictionary<string, object>() {
+            object orderType = new Dictionary<string, object>() { };
+
+            ((IDictionary<string, object>)orderType)["limit"] = new Dictionary<string, object>() {
                     { "tif", timeInForce },
                 };
-            }
-            orderParams = this.omit(orderParams, new List<object>() {"clientOrderId", "slippage", "triggerPrice", "stopPrice", "stopLossPrice", "takeProfitPrice", "timeInForce", "client_id", "reduceOnly", "postOnly"});
+
+            //if (isTrue(isTrigger))
+            //{
+            //    object isTp = false;
+            //    if (isTrue(!isEqual(takeProfitPrice, null)))
+            //    {
+            //        triggerPrice = this.priceToPrecision(symbol, takeProfitPrice);
+            //        isTp = true;
+            //    }
+            //    else
+            //    {
+            //        triggerPrice = this.priceToPrecision(symbol, stopLossPrice);
+            //    }
+            //    ((IDictionary<string, object>)orderType)["trigger"] = new Dictionary<string, object>() {
+            //        { "isMarket", true },
+            //        { "triggerPx", triggerPrice },
+            //        { "tpsl", ((bool) isTrue((isTp))) ? "tp" : "sl" },
+            //    };
+            //}
+            //else
+            //{
+            //    ((IDictionary<string, object>)orderType)["limit"] = new Dictionary<string, object>() {
+            //        { "tif", timeInForce },
+            //    };
+            //}
+            orderParams = this.omit(orderParams, new List<object>() { "clientOrderId", "slippage", "triggerPrice", "stopPrice", "stopLossPrice", "takeProfitPrice", "timeInForce", "client_id", "reduceOnly", "postOnly" });
             object orderObj = new Dictionary<string, object>() {
                 { "a", this.parseToInt(getValue(market, "baseId")) },
                 { "b", isBuy },
@@ -1634,32 +1735,101 @@ public partial class hyperliquid : Exchange
                 { "r", reduceOnly },
                 { "t", orderType },
             };
+
+
             if (isTrue(!isEqual(clientOrderId, null)))
             {
-                ((IDictionary<string,object>)orderObj)["c"] = clientOrderId;
+                ((IDictionary<string, object>)orderObj)["c"] = clientOrderId;
             }
+
             ((IList<object>)orderReq).Add(orderObj);
+            if (isTrue(takeProfitPrice))
+            {
+                var tpsx = this.priceToPrecision(symbol, takeProfitPrice);
+                var trigger = new Dictionary<string, object>()
+                {
+                    {"trigger",new Dictionary<string, object>(){
+                        {"isMarket",true},
+                        {"triggerPx",takeProfitPrice },
+                        {"tpsl", "tp"}
+                        }
+                    },
+                };
+                object tpOrderObj = new Dictionary<string, object>() {
+                    { "a", this.parseToInt(getValue(market, "baseId")) },
+                    { "b", !((bool)isTrue((isBuy))) },
+                    { "p", tpsx },
+                    { "s", amount },
+                    { "r", true },
+                    { "t", trigger},
+                };
+                if (isTrue(!isEqual(clientOrderId, null)))
+                {
+                    ((IDictionary<string, object>)tpOrderObj)["c"] = clientOrderId;
+                }
+                ((IList<object>)orderReq).Add(tpOrderObj);
+            }
+
+            //if (isTrue(stopLossPrice))
+            //{
+            //    var slsx = this.priceToPrecision(symbol, stopLossPrice);
+            //    var trigger = new Dictionary<string, object>()
+            //    {
+            //        {"trigger",new Dictionary<string, object>(){
+            //            {"isMarket",true},
+            //            {"tpsl", "sl"},
+            //            {"triggerPx",stopLossPrice }
+            //            }
+            //        },
+            //    };
+            //    object slOrderObj = new Dictionary<string, object>() {
+            //        { "a", this.parseToInt(getValue(market, "baseId")) },
+            //        { "b", false },
+            //        { "p", slsx },
+            //        { "s", amount },
+            //        { "r", true },
+            //        { "t", trigger},
+            //    };
+            //    ((IList<object>)orderReq).Add(slOrderObj);
+            //}
         }
+
         object vaultAddress = this.formatVaultAddress(this.safeString(parameters, "vaultAddress"));
+
         object orderAction = new Dictionary<string, object>() {
             { "type", "order" },
             { "orders", orderReq },
-            { "grouping", "na" },
+            { "grouping", isGroupping? "normalTpsl": "na" },
+            { "builder", new Dictionary<string, object>()
+                {
+                    {"b","0x3ee4f466592982fa51d661134a29a799a92496b9"},
+                    {"f",10 }
+                }
+            }
         };
+
+        //if (isTrue(!isEqual(buiderFee, null)) && isTrue(!isEqual(buiderAddress, null)))
+        //{
+        //    ((IDictionary<string, object>)orderAction)["builder"] = new Dictionary<string, object>()
+        //    {
+        //        {"b",buiderAddress},
+        //        {"f",0.01 }
+        //    };
+        //}
         if (isTrue(isEqual(vaultAddress, null)))
         {
-            ((IDictionary<string,object>)orderAction)["brokerCode"] = 1;
+            ((IDictionary<string, object>)orderAction)["brokerCode"] = 1;
         }
         object signature = this.signL1Action(orderAction, nonce, vaultAddress);
         object request = new Dictionary<string, object>() {
             { "action", orderAction },
             { "nonce", nonce },
-            { "signature", signature },
+            { "signature", signature }
         };
         if (isTrue(!isEqual(vaultAddress, null)))
         {
             parameters = this.omit(parameters, "vaultAddress");
-            ((IDictionary<string,object>)request)["vaultAddress"] = vaultAddress;
+            ((IDictionary<string, object>)request)["vaultAddress"] = vaultAddress;
         }
         return request;
     }
@@ -1680,7 +1850,7 @@ public partial class hyperliquid : Exchange
     public async override Task<object> cancelOrder(object id, object symbol = null, object parameters = null)
     {
         parameters ??= new Dictionary<string, object>();
-        object orders = await this.cancelOrders(new List<object>() {id}, symbol, parameters);
+        object orders = await this.cancelOrders(new List<object>() { id }, symbol, parameters);
         return this.safeDict(orders, 0);
     }
 
@@ -1703,17 +1873,17 @@ public partial class hyperliquid : Exchange
         this.checkRequiredCredentials();
         if (isTrue(isEqual(symbol, null)))
         {
-            throw new ArgumentsRequired ((string)add(this.id, " cancelOrders() requires a symbol argument")) ;
+            throw new ArgumentsRequired((string)add(this.id, " cancelOrders() requires a symbol argument"));
         }
         await this.loadMarkets();
         object market = this.market(symbol);
         object clientOrderId = this.safeValue2(parameters, "clientOrderId", "client_id");
-        parameters = this.omit(parameters, new List<object>() {"clientOrderId", "client_id"});
+        parameters = this.omit(parameters, new List<object>() { "clientOrderId", "client_id" });
         object nonce = this.milliseconds();
         object request = new Dictionary<string, object>() {
             { "nonce", nonce },
         };
-        object cancelReq = new List<object>() {};
+        object cancelReq = new List<object>() { };
         object cancelAction = new Dictionary<string, object>() {
             { "type", "" },
             { "cancels", new List<object>() {} },
@@ -1723,9 +1893,9 @@ public partial class hyperliquid : Exchange
         {
             if (!isTrue(((clientOrderId is IList<object>) || (clientOrderId.GetType().IsGenericType && clientOrderId.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>))))))
             {
-                clientOrderId = new List<object>() {clientOrderId};
+                clientOrderId = new List<object>() { clientOrderId };
             }
-            ((IDictionary<string,object>)cancelAction)["type"] = "cancelByCloid";
+            ((IDictionary<string, object>)cancelAction)["type"] = "cancelByCloid";
             for (object i = 0; isLessThan(i, getArrayLength(clientOrderId)); postFixIncrement(ref i))
             {
                 ((IList<object>)cancelReq).Add(new Dictionary<string, object>() {
@@ -1733,9 +1903,10 @@ public partial class hyperliquid : Exchange
                     { "cloid", getValue(clientOrderId, i) },
                 });
             }
-        } else
+        }
+        else
         {
-            ((IDictionary<string,object>)cancelAction)["type"] = "cancel";
+            ((IDictionary<string, object>)cancelAction)["type"] = "cancel";
             for (object i = 0; isLessThan(i, getArrayLength(ids)); postFixIncrement(ref i))
             {
                 ((IList<object>)cancelReq).Add(new Dictionary<string, object>() {
@@ -1744,15 +1915,15 @@ public partial class hyperliquid : Exchange
                 });
             }
         }
-        ((IDictionary<string,object>)cancelAction)["cancels"] = cancelReq;
+        ((IDictionary<string, object>)cancelAction)["cancels"] = cancelReq;
         object vaultAddress = this.formatVaultAddress(this.safeString(parameters, "vaultAddress"));
         object signature = this.signL1Action(cancelAction, nonce, vaultAddress);
-        ((IDictionary<string,object>)request)["action"] = cancelAction;
-        ((IDictionary<string,object>)request)["signature"] = signature;
+        ((IDictionary<string, object>)request)["action"] = cancelAction;
+        ((IDictionary<string, object>)request)["signature"] = signature;
         if (isTrue(!isEqual(vaultAddress, null)))
         {
             parameters = this.omit(parameters, "vaultAddress");
-            ((IDictionary<string,object>)request)["vaultAddress"] = vaultAddress;
+            ((IDictionary<string, object>)request)["vaultAddress"] = vaultAddress;
         }
         object response = await this.privatePostExchange(request);
         //
@@ -1771,7 +1942,7 @@ public partial class hyperliquid : Exchange
         object innerResponse = this.safeDict(response, "response");
         object data = this.safeDict(innerResponse, "data");
         object statuses = this.safeList(data, "statuses");
-        object orders = new List<object>() {};
+        object orders = new List<object>() { };
         for (object i = 0; isLessThan(i, getArrayLength(statuses)); postFixIncrement(ref i))
         {
             object status = getValue(statuses, i);
@@ -1783,6 +1954,95 @@ public partial class hyperliquid : Exchange
         return orders;
     }
 
+    public async virtual Task<object> approveAgent(string name, string address)
+    {
+        object isSandboxMode = this.safeBool(this.options, "sandboxMode");
+        object nonce = this.milliseconds();
+        object approveAgentPayload = string.IsNullOrWhiteSpace(address) ? new Dictionary<string, object>() {
+                { "hyperliquidChain", ((bool) isTrue(isSandboxMode)) ? "Testnet" : "Mainnet" },
+                { "agentName", name },
+                { "nonce", nonce },
+            } : new Dictionary<string, object>() {
+                { "hyperliquidChain", ((bool) isTrue(isSandboxMode)) ? "Testnet" : "Mainnet" },
+                { "agentAddress", address },
+                { "agentName", name },
+                { "nonce", nonce },
+            };
+        object sig = this.buildApproveAgentSig(approveAgentPayload);
+        //object sig = this. signL1Action(approveAgentPayload,nonce);
+        object payload = string.IsNullOrWhiteSpace(address)? new Dictionary<string, object>() {
+                { "action", new Dictionary<string, object>() {
+                    { "hyperliquidChain", ((bool) isTrue(isSandboxMode)) ? "Testnet" : "Mainnet" },
+                    { "signatureChainId", "0x66eee" },
+                    { "type", "approveAgent" },
+                    { "agentName", name },
+                    { "nonce", nonce },
+                } },
+                { "nonce", nonce },
+                { "signature", sig },
+            }: new Dictionary<string, object>() {
+                { "action", new Dictionary<string, object>() {
+                    { "hyperliquidChain", ((bool) isTrue(isSandboxMode)) ? "Testnet" : "Mainnet" },
+                    { "signatureChainId", "0x66eee" },
+                    { "type", "approveAgent" },
+                    { "agentAddress", address },
+                    { "agentName", name },
+                    { "nonce", nonce },
+                } },
+                { "nonce", nonce },
+                { "signature", sig },
+            };
+        object approveAgentResponse = await this.privatePostExchange(payload);
+        return approveAgentResponse;
+    }
+
+
+    public async virtual Task<object> setBuilderFee(string userAddress, string builderAddress, string fee)
+    {
+        object isSandboxMode = this.safeBool(this.options, "sandboxMode");
+        object nonce = this.milliseconds();
+        object builderFeePayload = new Dictionary<string, object>() {
+                { "hyperliquidChain", ((bool) isTrue(isSandboxMode)) ? "Testnet" : "Mainnet" },
+                { "maxFeeRate", fee },
+                { "builder", builderAddress },
+                { "nonce", nonce },
+            };
+        object sig = this.buildApproveFeeSig(builderFeePayload);
+        //object sig = this. signL1Action(approveAgentPayload,nonce);
+        object payload = new Dictionary<string, object>() {
+                { "action", new Dictionary<string, object>() {
+                    { "hyperliquidChain", ((bool) isTrue(isSandboxMode)) ? "Testnet" : "Mainnet" },
+                    { "signatureChainId", "0x66eee" },
+                    { "type", "approveBuilderFee" },
+                    { "maxFeeRate", fee },
+                    { "builder", builderAddress },
+                    { "nonce", nonce },
+                } },
+                { "nonce", nonce },
+                { "signature", sig },
+            };
+        object approveAgentResponse = await this.privatePostExchange(payload);
+        return approveAgentResponse;
+    }
+
+    public async virtual Task<object> setReferral(string code)
+    {
+        object isSandboxMode = this.safeBool(this.options, "sandboxMode");
+        object nonce = this.milliseconds();
+        object referralAction = new Dictionary<string, object>() {
+                { "type", "setReferrer"},
+                { "code", code}
+            };
+        object signature = this.signL1Action(referralAction, nonce);
+        //object sig = this. signL1Action(approveAgentPayload,nonce);
+        object payload = new Dictionary<string, object>() {
+                { "action", referralAction },
+                { "nonce", nonce },
+                { "signature", signature },
+            };
+        object refResponse = await this.privatePostExchange(payload);
+        return refResponse;
+    }
     /**
      * @method
      * @name hyperliquid#cancelOrdersForSymbols
@@ -1803,7 +2063,7 @@ public partial class hyperliquid : Exchange
         object request = new Dictionary<string, object>() {
             { "nonce", nonce },
         };
-        object cancelReq = new List<object>() {};
+        object cancelReq = new List<object>() { };
         object cancelAction = new Dictionary<string, object>() {
             { "type", "" },
             { "cancels", new List<object>() {} },
@@ -1821,30 +2081,30 @@ public partial class hyperliquid : Exchange
             object symbol = this.safeString(order, "symbol");
             if (isTrue(isEqual(symbol, null)))
             {
-                throw new ArgumentsRequired ((string)add(this.id, " cancelOrdersForSymbols() requires a symbol argument in each order")) ;
+                throw new ArgumentsRequired((string)add(this.id, " cancelOrdersForSymbols() requires a symbol argument in each order"));
             }
             if (isTrue(isTrue(!isEqual(id, null)) && isTrue(cancelByCloid)))
             {
-                throw new BadRequest ((string)add(this.id, " cancelOrdersForSymbols() all orders must have either id or clientOrderId")) ;
+                throw new BadRequest((string)add(this.id, " cancelOrdersForSymbols() all orders must have either id or clientOrderId"));
             }
-            object assetKey = ((bool) isTrue(cancelByCloid)) ? "asset" : "a";
-            object idKey = ((bool) isTrue(cancelByCloid)) ? "cloid" : "o";
+            object assetKey = ((bool)isTrue(cancelByCloid)) ? "asset" : "a";
+            object idKey = ((bool)isTrue(cancelByCloid)) ? "cloid" : "o";
             object market = this.market(symbol);
-            object cancelObj = new Dictionary<string, object>() {};
-            ((IDictionary<string,object>)cancelObj)[(string)assetKey] = this.parseToNumeric(getValue(market, "baseId"));
-            ((IDictionary<string,object>)cancelObj)[(string)idKey] = ((bool) isTrue(cancelByCloid)) ? clientOrderId : this.parseToNumeric(id);
+            object cancelObj = new Dictionary<string, object>() { };
+            ((IDictionary<string, object>)cancelObj)[(string)assetKey] = this.parseToNumeric(getValue(market, "baseId"));
+            ((IDictionary<string, object>)cancelObj)[(string)idKey] = ((bool)isTrue(cancelByCloid)) ? clientOrderId : this.parseToNumeric(id);
             ((IList<object>)cancelReq).Add(cancelObj);
         }
-        ((IDictionary<string,object>)cancelAction)["type"] = ((bool) isTrue(cancelByCloid)) ? "cancelByCloid" : "cancel";
-        ((IDictionary<string,object>)cancelAction)["cancels"] = cancelReq;
+        ((IDictionary<string, object>)cancelAction)["type"] = ((bool)isTrue(cancelByCloid)) ? "cancelByCloid" : "cancel";
+        ((IDictionary<string, object>)cancelAction)["cancels"] = cancelReq;
         object vaultAddress = this.formatVaultAddress(this.safeString(parameters, "vaultAddress"));
         object signature = this.signL1Action(cancelAction, nonce, vaultAddress);
-        ((IDictionary<string,object>)request)["action"] = cancelAction;
-        ((IDictionary<string,object>)request)["signature"] = signature;
+        ((IDictionary<string, object>)request)["action"] = cancelAction;
+        ((IDictionary<string, object>)request)["signature"] = signature;
         if (isTrue(!isEqual(vaultAddress, null)))
         {
             parameters = this.omit(parameters, "vaultAddress");
-            ((IDictionary<string,object>)request)["vaultAddress"] = vaultAddress;
+            ((IDictionary<string, object>)request)["vaultAddress"] = vaultAddress;
         }
         object response = await this.privatePostExchange(request);
         //
@@ -1877,7 +2137,7 @@ public partial class hyperliquid : Exchange
         parameters ??= new Dictionary<string, object>();
         this.checkRequiredCredentials();
         await this.loadMarkets();
-        parameters = this.omit(parameters, new List<object>() {"clientOrderId", "client_id"});
+        parameters = this.omit(parameters, new List<object>() { "clientOrderId", "client_id" });
         object nonce = this.milliseconds();
         object request = new Dictionary<string, object>() {
             { "nonce", nonce },
@@ -1888,12 +2148,12 @@ public partial class hyperliquid : Exchange
         };
         object vaultAddress = this.formatVaultAddress(this.safeString(parameters, "vaultAddress"));
         object signature = this.signL1Action(cancelAction, nonce, vaultAddress);
-        ((IDictionary<string,object>)request)["action"] = cancelAction;
-        ((IDictionary<string,object>)request)["signature"] = signature;
+        ((IDictionary<string, object>)request)["action"] = cancelAction;
+        ((IDictionary<string, object>)request)["signature"] = signature;
         if (isTrue(!isEqual(vaultAddress, null)))
         {
             parameters = this.omit(parameters, "vaultAddress");
-            ((IDictionary<string,object>)request)["vaultAddress"] = vaultAddress;
+            ((IDictionary<string, object>)request)["vaultAddress"] = vaultAddress;
         }
         object response = await this.privatePostExchange(request);
         //
@@ -1913,7 +2173,7 @@ public partial class hyperliquid : Exchange
         for (object i = 0; isLessThan(i, getArrayLength(orders)); postFixIncrement(ref i))
         {
             object rawOrder = getValue(orders, i);
-            object orderParams = this.safeDict(rawOrder, "params", new Dictionary<string, object>() {});
+            object orderParams = this.safeDict(rawOrder, "params", new Dictionary<string, object>() { });
             object clientOrderId = this.safeString2(orderParams, "clientOrderId", "client_id");
             if (isTrue(!isEqual(clientOrderId, null)))
             {
@@ -1925,16 +2185,16 @@ public partial class hyperliquid : Exchange
             for (object i = 0; isLessThan(i, getArrayLength(orders)); postFixIncrement(ref i))
             {
                 object rawOrder = getValue(orders, i);
-                object orderParams = this.safeDict(rawOrder, "params", new Dictionary<string, object>() {});
+                object orderParams = this.safeDict(rawOrder, "params", new Dictionary<string, object>() { });
                 object clientOrderId = this.safeString2(orderParams, "clientOrderId", "client_id");
                 if (isTrue(isEqual(clientOrderId, null)))
                 {
-                    throw new ArgumentsRequired ((string)add(this.id, " editOrders() all orders must have clientOrderId if at least one has a clientOrderId")) ;
+                    throw new ArgumentsRequired((string)add(this.id, " editOrders() all orders must have clientOrderId if at least one has a clientOrderId"));
                 }
             }
         }
-        parameters = this.omit(parameters, new List<object>() {"slippage", "clientOrderId", "client_id", "slippage", "triggerPrice", "stopPrice", "stopLossPrice", "takeProfitPrice", "timeInForce"});
-        object modifies = new List<object>() {};
+        parameters = this.omit(parameters, new List<object>() { "slippage", "clientOrderId", "client_id", "slippage", "triggerPrice", "stopPrice", "stopLossPrice", "takeProfitPrice", "timeInForce" });
+        object modifies = new List<object>() { };
         for (object i = 0; isLessThan(i, getArrayLength(orders)); postFixIncrement(ref i))
         {
             object rawOrder = getValue(orders, i);
@@ -1948,10 +2208,10 @@ public partial class hyperliquid : Exchange
             object isBuy = (isEqual(side, "BUY"));
             object amount = this.safeString(rawOrder, "amount");
             object price = this.safeString(rawOrder, "price");
-            object orderParams = this.safeDict(rawOrder, "params", new Dictionary<string, object>() {});
+            object orderParams = this.safeDict(rawOrder, "params", new Dictionary<string, object>() { });
             object defaultSlippage = this.safeString(this.options, "defaultSlippage");
             object slippage = this.safeString(orderParams, "slippage", defaultSlippage);
-            object defaultTimeInForce = ((bool) isTrue((isMarket))) ? "ioc" : "gtc";
+            object defaultTimeInForce = ((bool)isTrue((isMarket))) ? "ioc" : "gtc";
             object postOnly = this.safeBool(orderParams, "postOnly", false);
             if (isTrue(postOnly))
             {
@@ -1965,18 +2225,19 @@ public partial class hyperliquid : Exchange
             object takeProfitPrice = this.safeString(orderParams, "takeProfitPrice");
             object isTrigger = (isTrue(stopLossPrice) || isTrue(takeProfitPrice));
             object reduceOnly = this.safeBool(orderParams, "reduceOnly", false);
-            orderParams = this.omit(orderParams, new List<object>() {"slippage", "timeInForce", "triggerPrice", "stopLossPrice", "takeProfitPrice", "clientOrderId", "client_id", "postOnly", "reduceOnly"});
+            orderParams = this.omit(orderParams, new List<object>() { "slippage", "timeInForce", "triggerPrice", "stopLossPrice", "takeProfitPrice", "clientOrderId", "client_id", "postOnly", "reduceOnly" });
             object px = this.numberToString(price);
             if (isTrue(isMarket))
             {
-                px = ((bool) isTrue((isBuy))) ? Precise.stringMul(px, Precise.stringAdd("1", slippage)) : Precise.stringMul(px, Precise.stringSub("1", slippage));
+                px = ((bool)isTrue((isBuy))) ? Precise.stringMul(px, Precise.stringAdd("1", slippage)) : Precise.stringMul(px, Precise.stringSub("1", slippage));
                 px = this.priceToPrecision(symbol, px);
-            } else
+            }
+            else
             {
                 px = this.priceToPrecision(symbol, px);
             }
             object sz = this.amountToPrecision(symbol, amount);
-            object orderType = new Dictionary<string, object>() {};
+            object orderType = new Dictionary<string, object>() { };
             if (isTrue(isTrigger))
             {
                 object isTp = false;
@@ -1984,18 +2245,20 @@ public partial class hyperliquid : Exchange
                 {
                     triggerPrice = this.priceToPrecision(symbol, takeProfitPrice);
                     isTp = true;
-                } else
+                }
+                else
                 {
                     triggerPrice = this.priceToPrecision(symbol, stopLossPrice);
                 }
-                ((IDictionary<string,object>)orderType)["trigger"] = new Dictionary<string, object>() {
+                ((IDictionary<string, object>)orderType)["trigger"] = new Dictionary<string, object>() {
                     { "isMarket", isMarket },
                     { "triggerPx", triggerPrice },
                     { "tpsl", ((bool) isTrue((isTp))) ? "tp" : "sl" },
                 };
-            } else
+            }
+            else
             {
-                ((IDictionary<string,object>)orderType)["limit"] = new Dictionary<string, object>() {
+                ((IDictionary<string, object>)orderType)["limit"] = new Dictionary<string, object>() {
                     { "tif", timeInForce },
                 };
             }
@@ -2013,7 +2276,7 @@ public partial class hyperliquid : Exchange
             };
             if (isTrue(!isEqual(clientOrderId, null)))
             {
-                ((IDictionary<string,object>)orderReq)["c"] = clientOrderId;
+                ((IDictionary<string, object>)orderReq)["c"] = clientOrderId;
             }
             object modifyReq = new Dictionary<string, object>() {
                 { "oid", this.parseToInt(id) },
@@ -2036,7 +2299,7 @@ public partial class hyperliquid : Exchange
         if (isTrue(!isEqual(vaultAddress, null)))
         {
             parameters = this.omit(parameters, "vaultAddress");
-            ((IDictionary<string,object>)request)["vaultAddress"] = vaultAddress;
+            ((IDictionary<string, object>)request)["vaultAddress"] = vaultAddress;
         }
         return request;
     }
@@ -2067,12 +2330,12 @@ public partial class hyperliquid : Exchange
         await this.loadMarkets();
         if (isTrue(isEqual(id, null)))
         {
-            throw new ArgumentsRequired ((string)add(this.id, " editOrder() requires an id argument")) ;
+            throw new ArgumentsRequired((string)add(this.id, " editOrder() requires an id argument"));
         }
         var orderglobalParamsVariable = this.parseCreateEditOrderArgs(id, symbol, type, side, amount, price, parameters);
-        var order = ((IList<object>) orderglobalParamsVariable)[0];
-        var globalParams = ((IList<object>) orderglobalParamsVariable)[1];
-        object orders = await this.editOrders(new List<object>() {((object)order)}, globalParams);
+        var order = ((IList<object>)orderglobalParamsVariable)[0];
+        var globalParams = ((IList<object>)orderglobalParamsVariable)[1];
+        object orders = await this.editOrders(new List<object>() { ((object)order) }, globalParams);
         return getValue(orders, 0);
     }
 
@@ -2126,9 +2389,9 @@ public partial class hyperliquid : Exchange
         //         }
         //     }
         //
-        object responseObject = this.safeDict(response, "response", new Dictionary<string, object>() {});
-        object dataObject = this.safeDict(responseObject, "data", new Dictionary<string, object>() {});
-        object statuses = this.safeList(dataObject, "statuses", new List<object>() {});
+        object responseObject = this.safeDict(response, "response", new Dictionary<string, object>() { });
+        object dataObject = this.safeDict(responseObject, "data", new Dictionary<string, object>() { });
+        object statuses = this.safeList(dataObject, "statuses", new List<object>() { });
         return this.parseOrders(statuses);
     }
 
@@ -2160,8 +2423,8 @@ public partial class hyperliquid : Exchange
             { "nonce", nonce },
         };
         object signature = this.signL1Action(action, nonce);
-        ((IDictionary<string,object>)request)["action"] = action;
-        ((IDictionary<string,object>)request)["signature"] = signature;
+        ((IDictionary<string, object>)request)["action"] = action;
+        ((IDictionary<string, object>)request)["signature"] = signature;
         object response = await this.privatePostExchange(this.extend(request, parameters));
         //
         // {
@@ -2193,7 +2456,7 @@ public partial class hyperliquid : Exchange
         await this.loadMarkets();
         if (isTrue(isEqual(symbol, null)))
         {
-            throw new ArgumentsRequired ((string)add(this.id, " fetchFundingRateHistory() requires a symbol argument")) ;
+            throw new ArgumentsRequired((string)add(this.id, " fetchFundingRateHistory() requires a symbol argument"));
         }
         object market = this.market(symbol);
         object request = new Dictionary<string, object>() {
@@ -2202,17 +2465,18 @@ public partial class hyperliquid : Exchange
         };
         if (isTrue(!isEqual(since, null)))
         {
-            ((IDictionary<string,object>)request)["startTime"] = since;
-        } else
+            ((IDictionary<string, object>)request)["startTime"] = since;
+        }
+        else
         {
-            object maxLimit = ((bool) isTrue((isEqual(limit, null)))) ? 500 : limit;
-            ((IDictionary<string,object>)request)["startTime"] = subtract(this.milliseconds(), multiply(multiply(multiply(maxLimit, 60), 60), 1000));
+            object maxLimit = ((bool)isTrue((isEqual(limit, null)))) ? 500 : limit;
+            ((IDictionary<string, object>)request)["startTime"] = subtract(this.milliseconds(), multiply(multiply(multiply(maxLimit, 60), 60), 1000));
         }
         object until = this.safeInteger(parameters, "until");
         parameters = this.omit(parameters, "until");
         if (isTrue(!isEqual(until, null)))
         {
-            ((IDictionary<string,object>)request)["endTime"] = until;
+            ((IDictionary<string, object>)request)["endTime"] = until;
         }
         object response = await this.publicPostInfo(this.extend(request, parameters));
         //
@@ -2225,7 +2489,7 @@ public partial class hyperliquid : Exchange
         //         }
         //     ]
         //
-        object result = new List<object>() {};
+        object result = new List<object>() { };
         for (object i = 0; isLessThan(i, getArrayLength(response)); postFixIncrement(ref i))
         {
             object entry = getValue(response, i);
@@ -2286,14 +2550,14 @@ public partial class hyperliquid : Exchange
         //         }
         //     ]
         //
-        object orderWithStatus = new List<object>() {};
+        object orderWithStatus = new List<object>() { };
         for (object i = 0; isLessThan(i, getArrayLength(response)); postFixIncrement(ref i))
         {
             object order = getValue(response, i);
-            object extendOrder = new Dictionary<string, object>() {};
+            object extendOrder = new Dictionary<string, object>() { };
             if (isTrue(isEqual(this.safeString(order, "status"), null)))
             {
-                ((IDictionary<string,object>)extendOrder)["ccxtStatus"] = "open";
+                ((IDictionary<string, object>)extendOrder)["ccxtStatus"] = "open";
             }
             ((IList<object>)orderWithStatus).Add(this.extend(order, extendOrder));
         }
@@ -2316,7 +2580,7 @@ public partial class hyperliquid : Exchange
         parameters ??= new Dictionary<string, object>();
         await this.loadMarkets();
         object orders = await this.fetchOrders(symbol, null, null, parameters); // don't filter here because we don't want to catch open orders
-        object closedOrders = this.filterByArray(orders, "status", new List<object>() {"closed"}, false);
+        object closedOrders = this.filterByArray(orders, "status", new List<object>() { "closed" }, false);
         return this.filterBySymbolSinceLimit(closedOrders, symbol, since, limit);
     }
 
@@ -2336,7 +2600,7 @@ public partial class hyperliquid : Exchange
         parameters ??= new Dictionary<string, object>();
         await this.loadMarkets();
         object orders = await this.fetchOrders(symbol, null, null, parameters); // don't filter here because we don't want to catch open orders
-        object closedOrders = this.filterByArray(orders, "status", new List<object>() {"canceled"}, false);
+        object closedOrders = this.filterByArray(orders, "status", new List<object>() { "canceled" }, false);
         return this.filterBySymbolSinceLimit(closedOrders, symbol, since, limit);
     }
 
@@ -2356,7 +2620,7 @@ public partial class hyperliquid : Exchange
         parameters ??= new Dictionary<string, object>();
         await this.loadMarkets();
         object orders = await this.fetchOrders(symbol, null, null, parameters); // don't filter here because we don't want to catch open orders
-        object closedOrders = this.filterByArray(orders, "status", new List<object>() {"canceled", "closed", "rejected"}, false);
+        object closedOrders = this.filterByArray(orders, "status", new List<object>() { "canceled", "closed", "rejected" }, false);
         return this.filterBySymbolSinceLimit(closedOrders, symbol, since, limit);
     }
 
@@ -2552,7 +2816,7 @@ public partial class hyperliquid : Exchange
         //     "triggerPx": "0.6"
         // }
         //
-        object entry = this.safeDictN(order, new List<object>() {"order", "resting", "filled"});
+        object entry = this.safeDictN(order, new List<object>() { "order", "resting", "filled" });
         if (isTrue(isEqual(entry, null)))
         {
             entry = order;
@@ -2566,18 +2830,19 @@ public partial class hyperliquid : Exchange
         if (isTrue(isEqual(this.safeString(entry, "id"), null)))
         {
             market = this.safeMarket(marketId, null);
-        } else
+        }
+        else
         {
             market = this.safeMarket(marketId, market);
         }
         object symbol = getValue(market, "symbol");
         object timestamp = this.safeInteger(entry, "timestamp");
         object status = this.safeString2(order, "status", "ccxtStatus");
-        order = this.omit(order, new List<object>() {"ccxtStatus"});
+        order = this.omit(order, new List<object>() { "ccxtStatus" });
         object side = this.safeString(entry, "side");
         if (isTrue(!isEqual(side, null)))
         {
-            side = ((bool) isTrue((isEqual(side, "A")))) ? "sell" : "buy";
+            side = ((bool)isTrue((isEqual(side, "A")))) ? "sell" : "buy";
         }
         object totalAmount = this.safeString2(entry, "origSz", "totalSz");
         object remaining = this.safeString(entry, "sz");
@@ -2663,17 +2928,18 @@ public partial class hyperliquid : Exchange
         };
         if (isTrue(!isEqual(since, null)))
         {
-            ((IDictionary<string,object>)request)["type"] = "userFillsByTime";
-            ((IDictionary<string,object>)request)["startTime"] = since;
-        } else
+            ((IDictionary<string, object>)request)["type"] = "userFillsByTime";
+            ((IDictionary<string, object>)request)["startTime"] = since;
+        }
+        else
         {
-            ((IDictionary<string,object>)request)["type"] = "userFills";
+            ((IDictionary<string, object>)request)["type"] = "userFills";
         }
         object until = this.safeInteger(parameters, "until");
         parameters = this.omit(parameters, "until");
         if (isTrue(!isEqual(until, null)))
         {
-            ((IDictionary<string,object>)request)["endTime"] = until;
+            ((IDictionary<string, object>)request)["endTime"] = until;
         }
         object response = await this.publicPostInfo(this.extend(request, parameters));
         //
@@ -2731,14 +2997,14 @@ public partial class hyperliquid : Exchange
         object side = this.safeString(trade, "side");
         if (isTrue(!isEqual(side, null)))
         {
-            side = ((bool) isTrue((isEqual(side, "A")))) ? "sell" : "buy";
+            side = ((bool)isTrue((isEqual(side, "A")))) ? "sell" : "buy";
         }
         object fee = this.safeString(trade, "fee");
         object takerOrMaker = null;
         object crossed = this.safeBool(trade, "crossed");
         if (isTrue(!isEqual(crossed, null)))
         {
-            takerOrMaker = ((bool) isTrue(crossed)) ? "taker" : "maker";
+            takerOrMaker = ((bool)isTrue(crossed)) ? "taker" : "maker";
         }
         return this.safeTrade(new Dictionary<string, object>() {
             { "info", trade },
@@ -2774,8 +3040,8 @@ public partial class hyperliquid : Exchange
     public async override Task<object> fetchPosition(object symbol, object parameters = null)
     {
         parameters ??= new Dictionary<string, object>();
-        object positions = await this.fetchPositions(new List<object>() {symbol}, parameters);
-        return this.safeDict(positions, 0, new Dictionary<string, object>() {});
+        object positions = await this.fetchPositions(new List<object>() { symbol }, parameters);
+        return this.safeDict(positions, 0, new Dictionary<string, object>() { });
     }
 
     /**
@@ -2847,8 +3113,8 @@ public partial class hyperliquid : Exchange
         //         "withdrawable": "100.0"
         //     }
         //
-        object data = this.safeList(response, "assetPositions", new List<object>() {});
-        object result = new List<object>() {};
+        object data = this.safeList(response, "assetPositions", new List<object>() { });
+        object result = new List<object>() { };
         for (object i = 0; isLessThan(i, getArrayLength(data)); postFixIncrement(ref i))
         {
             ((IList<object>)result).Add(this.parsePosition(getValue(data, i), null));
@@ -2884,12 +3150,12 @@ public partial class hyperliquid : Exchange
         //         "type": "oneWay"
         //     }
         //
-        object entry = this.safeDict(position, "position", new Dictionary<string, object>() {});
+        object entry = this.safeDict(position, "position", new Dictionary<string, object>() { });
         object coin = this.safeString(entry, "coin");
         object marketId = this.coinToMarketId(coin);
         market = this.safeMarket(marketId, null);
         object symbol = getValue(market, "symbol");
-        object leverage = this.safeDict(entry, "leverage", new Dictionary<string, object>() {});
+        object leverage = this.safeDict(entry, "leverage", new Dictionary<string, object>() { });
         object marginMode = this.safeString(leverage, "type");
         object isIsolated = (isEqual(marginMode, "isolated"));
         object rawSize = this.safeString(entry, "szi");
@@ -2897,7 +3163,7 @@ public partial class hyperliquid : Exchange
         object side = null;
         if (isTrue(!isEqual(size, null)))
         {
-            side = ((bool) isTrue(Precise.stringGt(rawSize, "0"))) ? "long" : "short";
+            side = ((bool)isTrue(Precise.stringGt(rawSize, "0"))) ? "long" : "short";
             size = Precise.stringAbs(size);
         }
         object rawUnrealizedPnl = this.safeString(entry, "unrealizedPnl");
@@ -2946,19 +3212,19 @@ public partial class hyperliquid : Exchange
         parameters ??= new Dictionary<string, object>();
         if (isTrue(isEqual(symbol, null)))
         {
-            throw new ArgumentsRequired ((string)add(this.id, " setMarginMode() requires a symbol argument")) ;
+            throw new ArgumentsRequired((string)add(this.id, " setMarginMode() requires a symbol argument"));
         }
         await this.loadMarkets();
         object market = this.market(symbol);
         object leverage = this.safeInteger(parameters, "leverage");
         if (isTrue(isEqual(leverage, null)))
         {
-            throw new ArgumentsRequired ((string)add(this.id, " setMarginMode() requires a leverage parameter")) ;
+            throw new ArgumentsRequired((string)add(this.id, " setMarginMode() requires a leverage parameter"));
         }
         object asset = this.parseToInt(getValue(market, "baseId"));
         object isCross = (isEqual(marginMode, "cross"));
         object nonce = this.milliseconds();
-        parameters = this.omit(parameters, new List<object>() {"leverage"});
+        parameters = this.omit(parameters, new List<object>() { "leverage" });
         object updateAction = new Dictionary<string, object>() {
             { "type", "updateLeverage" },
             { "asset", asset },
@@ -2982,7 +3248,7 @@ public partial class hyperliquid : Exchange
         };
         if (isTrue(!isEqual(vaultAddress, null)))
         {
-            ((IDictionary<string,object>)request)["vaultAddress"] = vaultAddress;
+            ((IDictionary<string, object>)request)["vaultAddress"] = vaultAddress;
         }
         object response = await this.privatePostExchange(request);
         //
@@ -3011,7 +3277,7 @@ public partial class hyperliquid : Exchange
         parameters ??= new Dictionary<string, object>();
         if (isTrue(isEqual(symbol, null)))
         {
-            throw new ArgumentsRequired ((string)add(this.id, " setLeverage() requires a symbol argument")) ;
+            throw new ArgumentsRequired((string)add(this.id, " setLeverage() requires a symbol argument"));
         }
         await this.loadMarkets();
         object market = this.market(symbol);
@@ -3036,7 +3302,7 @@ public partial class hyperliquid : Exchange
         if (isTrue(!isEqual(vaultAddress, null)))
         {
             parameters = this.omit(parameters, "vaultAddress");
-            ((IDictionary<string,object>)request)["vaultAddress"] = vaultAddress;
+            ((IDictionary<string, object>)request)["vaultAddress"] = vaultAddress;
         }
         object response = await this.privatePostExchange(request);
         //
@@ -3110,7 +3376,7 @@ public partial class hyperliquid : Exchange
         if (isTrue(!isEqual(vaultAddress, null)))
         {
             parameters = this.omit(parameters, "vaultAddress");
-            ((IDictionary<string,object>)request)["vaultAddress"] = vaultAddress;
+            ((IDictionary<string, object>)request)["vaultAddress"] = vaultAddress;
         }
         object response = await this.privatePostExchange(request);
         //
@@ -3167,12 +3433,12 @@ public partial class hyperliquid : Exchange
         await this.loadMarkets();
         object isSandboxMode = this.safeBool(this.options, "sandboxMode");
         object nonce = this.milliseconds();
-        if (isTrue(this.inArray(fromAccount, new List<object>() {"spot", "swap", "perp"})))
+        if (isTrue(this.inArray(fromAccount, new List<object>() { "spot", "swap", "perp" })))
         {
             // handle swap <> spot account transfer
-            if (!isTrue(this.inArray(toAccount, new List<object>() {"spot", "swap", "perp"})))
+            if (!isTrue(this.inArray(toAccount, new List<object>() { "spot", "swap", "perp" })))
             {
-                throw new NotSupported ((string)add(this.id, " transfer() only support spot <> swap transfer")) ;
+                throw new NotSupported((string)add(this.id, " transfer() only support spot <> swap transfer"));
             }
             object strAmount = this.numberToString(amount);
             object vaultAddress = this.formatVaultAddress(this.safeString(parameters, "vaultAddress"));
@@ -3203,7 +3469,7 @@ public partial class hyperliquid : Exchange
             };
             if (isTrue(!isEqual(vaultAddress, null)))
             {
-                ((IDictionary<string,object>)transferRequest)["vaultAddress"] = vaultAddress;
+                ((IDictionary<string, object>)transferRequest)["vaultAddress"] = vaultAddress;
             }
             object transferResponse = await this.privatePostExchange(transferRequest);
             return transferResponse;
@@ -3215,7 +3481,7 @@ public partial class hyperliquid : Exchange
             code = ((string)code).ToUpper();
             if (isTrue(!isEqual(code, "USDC")))
             {
-                throw new NotSupported ((string)add(this.id, " transfer() only support USDC")) ;
+                throw new NotSupported((string)add(this.id, " transfer() only support USDC"));
             }
         }
         object payload = new Dictionary<string, object>() {
@@ -3287,13 +3553,14 @@ public partial class hyperliquid : Exchange
             code = ((string)code).ToUpper();
             if (isTrue(!isEqual(code, "USDC")))
             {
-                throw new NotSupported ((string)add(this.id, " withdraw() only support USDC")) ;
+                throw new NotSupported((string)add(this.id, " withdraw() only support USDC"));
             }
         }
         object vaultAddress = this.formatVaultAddress(this.safeString(parameters, "vaultAddress"));
         parameters = this.omit(parameters, "vaultAddress");
+        object isSend = this.safeBool(parameters, "isSend");
         object nonce = this.milliseconds();
-        object action = new Dictionary<string, object>() {};
+        object action = new Dictionary<string, object>() { };
         object sig = null;
         if (isTrue(!isEqual(vaultAddress, null)))
         {
@@ -3304,7 +3571,8 @@ public partial class hyperliquid : Exchange
                 { "usd", amount },
             };
             sig = this.signL1Action(action, nonce);
-        } else
+        }
+        else
         {
             object isSandboxMode = this.safeBool(this.options, "sandboxMode", false);
             object payload = new Dictionary<string, object>() {
@@ -3320,7 +3588,7 @@ public partial class hyperliquid : Exchange
                 { "destination", address },
                 { "amount", ((object)amount).ToString() },
                 { "time", nonce },
-                { "type", "withdraw3" },
+                { "type","withdraw3" },
             };
         }
         object request = new Dictionary<string, object>() {
@@ -3349,7 +3617,7 @@ public partial class hyperliquid : Exchange
         // }
         //
         object timestamp = this.safeInteger(transaction, "time");
-        object delta = this.safeDict(transaction, "delta", new Dictionary<string, object>() {});
+        object delta = this.safeDict(transaction, "delta", new Dictionary<string, object>() { });
         object fee = null;
         object feeCost = this.safeInteger(delta, "fee");
         if (isTrue(!isEqual(feeCost, null)))
@@ -3527,13 +3795,13 @@ public partial class hyperliquid : Exchange
         };
         if (isTrue(!isEqual(since, null)))
         {
-            ((IDictionary<string,object>)request)["startTime"] = since;
+            ((IDictionary<string, object>)request)["startTime"] = since;
         }
         object until = this.safeInteger(parameters, "until");
         if (isTrue(!isEqual(until, null)))
         {
-            ((IDictionary<string,object>)request)["endTime"] = until;
-            parameters = this.omit(parameters, new List<object>() {"until"});
+            ((IDictionary<string, object>)request)["endTime"] = until;
+            parameters = this.omit(parameters, new List<object>() { "until" });
         }
         object response = await this.publicPostInfo(this.extend(request, parameters));
         //
@@ -3566,7 +3834,7 @@ public partial class hyperliquid : Exchange
         // }
         //
         object timestamp = this.safeInteger(item, "time");
-        object delta = this.safeDict(item, "delta", new Dictionary<string, object>() {});
+        object delta = this.safeDict(item, "delta", new Dictionary<string, object>() { });
         object fee = null;
         object feeCost = this.safeInteger(delta, "fee");
         if (isTrue(!isEqual(feeCost, null)))
@@ -3631,13 +3899,13 @@ public partial class hyperliquid : Exchange
         };
         if (isTrue(!isEqual(since, null)))
         {
-            ((IDictionary<string,object>)request)["startTime"] = since;
+            ((IDictionary<string, object>)request)["startTime"] = since;
         }
         object until = this.safeInteger(parameters, "until");
         if (isTrue(!isEqual(until, null)))
         {
-            ((IDictionary<string,object>)request)["endTime"] = until;
-            parameters = this.omit(parameters, new List<object>() {"until"});
+            ((IDictionary<string, object>)request)["endTime"] = until;
+            parameters = this.omit(parameters, new List<object>() { "until" });
         }
         object response = await this.publicPostInfo(this.extend(request, parameters));
         //
@@ -3654,7 +3922,7 @@ public partial class hyperliquid : Exchange
         // ]
         //
         object records = this.extractTypeFromDelta(response);
-        object deposits = this.filterByArray(records, "type", new List<object>() {"deposit"}, false);
+        object deposits = this.filterByArray(records, "type", new List<object>() { "deposit" }, false);
         return this.parseTransactions(deposits, null, since, limit);
     }
 
@@ -3683,13 +3951,13 @@ public partial class hyperliquid : Exchange
         };
         if (isTrue(!isEqual(since, null)))
         {
-            ((IDictionary<string,object>)request)["startTime"] = since;
+            ((IDictionary<string, object>)request)["startTime"] = since;
         }
         object until = this.safeInteger(parameters, "until");
         if (isTrue(!isEqual(until, null)))
         {
-            ((IDictionary<string,object>)request)["endTime"] = until;
-            parameters = this.omit(parameters, new List<object>() {"until"});
+            ((IDictionary<string, object>)request)["endTime"] = until;
+            parameters = this.omit(parameters, new List<object>() { "until" });
         }
         object response = await this.publicPostInfo(this.extend(request, parameters));
         //
@@ -3706,7 +3974,7 @@ public partial class hyperliquid : Exchange
         // ]
         //
         object records = this.extractTypeFromDelta(response);
-        object withdrawals = this.filterByArray(records, "type", new List<object>() {"withdraw"}, false);
+        object withdrawals = this.filterByArray(records, "type", new List<object>() { "withdraw" }, false);
         return this.parseTransactions(withdrawals, null, since, limit);
     }
 
@@ -3740,7 +4008,7 @@ public partial class hyperliquid : Exchange
         parameters ??= new Dictionary<string, object>();
         symbol = this.symbol(symbol);
         await this.loadMarkets();
-        object ois = await this.fetchOpenInterests(new List<object>() {symbol}, parameters);
+        object ois = await this.fetchOpenInterests(new List<object>() { symbol }, parameters);
         return getValue(ois, symbol);
     }
 
@@ -3764,7 +4032,7 @@ public partial class hyperliquid : Exchange
         //      baseId: 159
         //  }
         //
-        interest = this.safeDict(interest, "info", new Dictionary<string, object>() {});
+        interest = this.safeDict(interest, "info", new Dictionary<string, object>() { });
         object coin = this.safeString(interest, "name");
         object marketId = null;
         if (isTrue(!isEqual(coin, null)))
@@ -3810,13 +4078,13 @@ public partial class hyperliquid : Exchange
         };
         if (isTrue(!isEqual(since, null)))
         {
-            ((IDictionary<string,object>)request)["startTime"] = since;
+            ((IDictionary<string, object>)request)["startTime"] = since;
         }
         object until = this.safeInteger(parameters, "until");
         parameters = this.omit(parameters, "until");
         if (isTrue(!isEqual(until, null)))
         {
-            ((IDictionary<string,object>)request)["endTime"] = until;
+            ((IDictionary<string, object>)request)["endTime"] = until;
         }
         object response = await this.publicPostInfo(this.extend(request, parameters));
         //
@@ -3879,11 +4147,11 @@ public partial class hyperliquid : Exchange
     public virtual object extractTypeFromDelta(object data = null)
     {
         data ??= new List<object>();
-        object records = new List<object>() {};
+        object records = new List<object>() { };
         for (object i = 0; isLessThan(i, getArrayLength(data)); postFixIncrement(ref i))
         {
             object record = getValue(data, i);
-            ((IDictionary<string,object>)record)["type"] = getValue(getValue(record, "delta"), "type");
+            ((IDictionary<string, object>)record)["type"] = getValue(getValue(record, "delta"), "type");
             ((IList<object>)records).Add(record);
         }
         return records;
@@ -3914,13 +4182,13 @@ public partial class hyperliquid : Exchange
         parameters = ((IList<object>)userparametersVariable)[1];
         if (isTrue(isTrue((!isEqual(user, null))) && isTrue((!isEqual(user, "")))))
         {
-            return new List<object>() {user, parameters};
+            return new List<object>() { user, parameters };
         }
         if (isTrue(isTrue((!isEqual(this.walletAddress, null))) && isTrue((!isEqual(this.walletAddress, "")))))
         {
-            return new List<object>() {this.walletAddress, parameters};
+            return new List<object>() { this.walletAddress, parameters };
         }
-        throw new ArgumentsRequired ((string)add(add(add(this.id, " "), methodName), "() requires a user parameter inside 'params' or the wallet address set")) ;
+        throw new ArgumentsRequired((string)add(add(add(this.id, " "), methodName), "() requires a user parameter inside 'params' or the wallet address set"));
     }
 
     public virtual object coinToMarketId(object coin)
@@ -3951,11 +4219,12 @@ public partial class hyperliquid : Exchange
         if (isTrue(isEqual(status, "err")))
         {
             message = this.safeString(response, "response");
-        } else
+        }
+        else
         {
-            object responsePayload = this.safeDict(response, "response", new Dictionary<string, object>() {});
-            object data = this.safeDict(responsePayload, "data", new Dictionary<string, object>() {});
-            object statuses = this.safeList(data, "statuses", new List<object>() {});
+            object responsePayload = this.safeDict(response, "response", new Dictionary<string, object>() { });
+            object data = this.safeDict(responsePayload, "data", new Dictionary<string, object>() { });
+            object statuses = this.safeList(data, "statuses", new List<object>() { });
             object firstStatus = this.safeDict(statuses, 0);
             message = this.safeString(firstStatus, "error");
         }
@@ -3968,7 +4237,7 @@ public partial class hyperliquid : Exchange
         }
         if (isTrue(nonEmptyMessage))
         {
-            throw new ExchangeError ((string)feedback) ;
+            throw new ExchangeError((string)feedback);
         }
         return null;
     }
@@ -4024,15 +4293,15 @@ public partial class hyperliquid : Exchange
             { "price", price },
             { "params", parameters },
         };
-        object globalParams = new Dictionary<string, object>() {};
+        object globalParams = new Dictionary<string, object>() { };
         if (isTrue(!isEqual(vaultAddress, null)))
         {
-            ((IDictionary<string,object>)globalParams)["vaultAddress"] = vaultAddress;
+            ((IDictionary<string, object>)globalParams)["vaultAddress"] = vaultAddress;
         }
         if (isTrue(!isEqual(id, null)))
         {
-            ((IDictionary<string,object>)order)["id"] = id;
+            ((IDictionary<string, object>)order)["id"] = id;
         }
-        return new List<object>() {order, globalParams};
+        return new List<object>() { order, globalParams };
     }
 }
