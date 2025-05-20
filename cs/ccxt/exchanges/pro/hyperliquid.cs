@@ -7,6 +7,8 @@ namespace ccxt.pro;
 public partial class hyperliquid { public hyperliquid(object args = null) : base(args) { } }
 public partial class hyperliquid : ccxt.hyperliquid
 {
+    public event Action<object> onWsError;
+    public event Action<object> onWsClosed;
     public override object describe()
     {
         return this.deepExtend(base.describe(), new Dictionary<string, object>() {
@@ -942,6 +944,18 @@ public partial class hyperliquid : ccxt.hyperliquid
         {
             return false;
         }
+    }
+
+    public override void onClose(WebSocketClient client, object error = null)
+    {
+        base.onClose(client, error);
+        onWsClosed(this);
+    }
+
+    public override void onError(WebSocketClient client, object error = null)
+    {
+        base.onError(client, error);
+        onWsClosed(this);
     }
 
     public virtual void handleOrderBookUnsubscription(WebSocketClient client, object subscription)

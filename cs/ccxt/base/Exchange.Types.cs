@@ -298,7 +298,7 @@ public struct Order
     public bool? postOnly;
     public Fee? fee;
     public IEnumerable<Trade>? trades;
-    public IEnumerable<Order>? children;
+    public IEnumerable<object>? children;
     public Dictionary<string, object>? info;
     public Order(object order2)
     {
@@ -326,7 +326,7 @@ public struct Order
         reduceOnly = Exchange.SafeBool(order, "reduceOnly", false);
         postOnly = Exchange.SafeBool(order, "postOnly", false);
         info = Helper.GetInfo(order);
-        children = order.ContainsKey("children") ? ((IEnumerable<object>)order["children"]).Select(x => new Order(x)) : null;
+        children = info.ContainsKey("children") ? ((IEnumerable<object>)info["children"]) : null;
     }
 }
 

@@ -1622,6 +1622,7 @@ public partial class hyperliquid : Exchange
         defaultSlippage = this.safeString(parameters, "slippage", defaultSlippage);
         object buiderFee = null;
         object buiderAddress = null;
+        object c_nonce = null;
         object hasClientOrderId = false;
         for (object i = 0; isLessThan(i, getArrayLength(orders)); postFixIncrement(ref i))
         {
@@ -1662,11 +1663,15 @@ public partial class hyperliquid : Exchange
             object isBuy = (isEqual(side, "BUY"));
             object amount = this.safeString(rawOrder, "amount");
             object price = this.safeString(rawOrder, "price");
+
+
             object orderParams = this.safeDict(rawOrder, "params", new Dictionary<string, object>() { });
             object clientOrderId = this.safeString2(orderParams, "clientOrderId", "client_id");
             object slippage = this.safeString(orderParams, "slippage", defaultSlippage);
             buiderFee = this.safeString(orderParams, "builderFee");
             buiderAddress = this.safeString(orderParams, "builderAddress");
+            c_nonce = this.safeString(orderParams, "c_nonce");
+
             object defaultTimeInForce = ((bool)isTrue((isMarket))) ? "ioc" : "gtc";
             object postOnly = this.safeBool(orderParams, "postOnly", false);
             if (isTrue(postOnly))
@@ -1678,6 +1683,7 @@ public partial class hyperliquid : Exchange
             object triggerPrice = this.safeString2(orderParams, "triggerPrice", "stopPrice");
             object stopLossPrice = this.safeString(orderParams, "stopLossPrice", triggerPrice);
             object takeProfitPrice = this.safeString(orderParams, "takeProfitPrice");
+            object takeProfitPrices = this.safeList(orderParams, "takeProfitPrices");
             object isTrigger = (isTrue(stopLossPrice) || isTrue(takeProfitPrice));
             isGroupping = (isTrue(stopLossPrice) || isTrue(takeProfitPrice));
             object px = null;
@@ -1696,6 +1702,7 @@ public partial class hyperliquid : Exchange
             }
             object sz = this.amountToPrecision(symbol, amount);
             object reduceOnly = this.safeBool(orderParams, "reduceOnly", false);
+
             object orderType = new Dictionary<string, object>() { };
 
             ((IDictionary<string, object>)orderType)["limit"] = new Dictionary<string, object>() {
@@ -1743,55 +1750,95 @@ public partial class hyperliquid : Exchange
             }
 
             ((IList<object>)orderReq).Add(orderObj);
-            if (isTrue(takeProfitPrice))
-            {
-                var tpsx = this.priceToPrecision(symbol, takeProfitPrice);
-                var trigger = new Dictionary<string, object>()
-                {
-                    {"trigger",new Dictionary<string, object>(){
-                        {"isMarket",true},
-                        {"triggerPx",takeProfitPrice },
-                        {"tpsl", "tp"}
-                        }
-                    },
-                };
-                object tpOrderObj = new Dictionary<string, object>() {
-                    { "a", this.parseToInt(getValue(market, "baseId")) },
-                    { "b", !((bool)isTrue((isBuy))) },
-                    { "p", tpsx },
-                    { "s", amount },
-                    { "r", true },
-                    { "t", trigger},
-                };
-                if (isTrue(!isEqual(clientOrderId, null)))
-                {
-                    ((IDictionary<string, object>)tpOrderObj)["c"] = clientOrderId;
-                }
-                ((IList<object>)orderReq).Add(tpOrderObj);
-            }
-
-            //if (isTrue(stopLossPrice))
+            //if (isTrue(takeProfitPrice))
             //{
-            //    var slsx = this.priceToPrecision(symbol, stopLossPrice);
+            //    var tpsx = this.priceToPrecision(symbol, takeProfitPrice);
             //    var trigger = new Dictionary<string, object>()
             //    {
             //        {"trigger",new Dictionary<string, object>(){
             //            {"isMarket",true},
-            //            {"tpsl", "sl"},
-            //            {"triggerPx",stopLossPrice }
+            //            {"triggerPx",takeProfitPrice },
+            //            {"tpsl", "tp"}
             //            }
             //        },
             //    };
-            //    object slOrderObj = new Dictionary<string, object>() {
+            //    object tpOrderObj = new Dictionary<string, object>() {
             //        { "a", this.parseToInt(getValue(market, "baseId")) },
-            //        { "b", false },
-            //        { "p", slsx },
+            //        { "b", !((bool)isTrue((isBuy))) },
+            //        { "p", tpsx },
             //        { "s", amount },
             //        { "r", true },
             //        { "t", trigger},
             //    };
-            //    ((IList<object>)orderReq).Add(slOrderObj);
+            //    if (isTrue(!isEqual(clientOrderId, null)))
+            //    {
+            //        ((IDictionary<string, object>)tpOrderObj)["c"] = clientOrderId;
+            //    }
+            //    ((IList<object>)orderReq).Add(tpOrderObj);
             //}
+            if (isTrue(takeProfitPrices))
+            {
+                int tpLengths = getArrayLength(takeProfitPrices);
+                double? divideAmount = this.safeFloat(rawOrder, "amount");
+                if (divideAmount.HasValue)
+                {
+                    for (object j = 0; isLessThan(j, tpLengths); postFixIncrement(ref j))
+                    {
+                        if ((int)j != (tpLengths - 1))
+                        {
+                            divideAmount = (divideAmount.Value / 2);
+                        }
+                        object amountTP = this.amountToPrecision(symbol, divideAmount.Value);
+                        object tpPrice = getValue(takeProfitPrices, j);
+                        var tpsx = this.priceToPrecision(symbol, tpPrice);
+                        var trigger = new Dictionary<string, object>()
+                            {
+                                {"trigger",new Dictionary<string, object>(){
+                                    {"isMarket",true},
+                                    {"triggerPx",tpsx },
+                                    {"tpsl", "tp"}
+                                    }
+                                },
+                            };
+                        object tpOrderObj = new Dictionary<string, object>() {
+                            { "a", this.parseToInt(getValue(market, "baseId")) },
+                            { "b", !((bool)isTrue((isBuy))) },
+                            { "p", tpsx },
+                            { "s", amountTP },
+                            { "r", true },
+                            { "t", trigger},
+                        };
+                        if (isTrue(!isEqual(clientOrderId, null)))
+                        {
+                            ((IDictionary<string, object>)tpOrderObj)["c"] = clientOrderId;
+                        }
+                    ((IList<object>)orderReq).Add(tpOrderObj);
+                    }
+                }
+            }
+
+            if (isTrue(stopLossPrice))
+            {
+                var slsx = this.priceToPrecision(symbol, stopLossPrice);
+                var trigger = new Dictionary<string, object>()
+                {
+                    {"trigger",new Dictionary<string, object>(){
+                        {"isMarket",true},
+                        {"triggerPx",slsx },
+                        {"tpsl", "sl"},
+                        }
+                    },
+                };
+                object slOrderObj = new Dictionary<string, object>() {
+                    { "a", this.parseToInt(getValue(market, "baseId")) },
+                    { "b", !((bool)isTrue((isBuy))) },
+                    { "p", slsx },
+                    { "s", sz },
+                    { "r", true },
+                    { "t", trigger},
+                };
+                ((IList<object>)orderReq).Add(slOrderObj);
+            }
         }
 
         object vaultAddress = this.formatVaultAddress(this.safeString(parameters, "vaultAddress"));
@@ -1820,6 +1867,12 @@ public partial class hyperliquid : Exchange
         {
             ((IDictionary<string, object>)orderAction)["brokerCode"] = 1;
         }
+
+        if (isTrue(!isEqual(c_nonce, null)))
+        {
+            nonce = long.Parse(c_nonce.ToString());
+        }
+
         object signature = this.signL1Action(orderAction, nonce, vaultAddress);
         object request = new Dictionary<string, object>() {
             { "action", orderAction },
@@ -1954,7 +2007,7 @@ public partial class hyperliquid : Exchange
         return orders;
     }
 
-    public async virtual Task<object> approveAgent(string name, string address)
+    public async virtual Task<object> approveAgent(string name, string address,long cnonce=0)
     {
         object isSandboxMode = this.safeBool(this.options, "sandboxMode");
         object nonce = this.milliseconds();
@@ -1970,7 +2023,7 @@ public partial class hyperliquid : Exchange
             };
         object sig = this.buildApproveAgentSig(approveAgentPayload);
         //object sig = this. signL1Action(approveAgentPayload,nonce);
-        object payload = string.IsNullOrWhiteSpace(address)? new Dictionary<string, object>() {
+        object payload = string.IsNullOrWhiteSpace(address) ? new Dictionary<string, object>() {
                 { "action", new Dictionary<string, object>() {
                     { "hyperliquidChain", ((bool) isTrue(isSandboxMode)) ? "Testnet" : "Mainnet" },
                     { "signatureChainId", "0x66eee" },
@@ -1980,7 +2033,48 @@ public partial class hyperliquid : Exchange
                 } },
                 { "nonce", nonce },
                 { "signature", sig },
-            }: new Dictionary<string, object>() {
+            } : new Dictionary<string, object>() {
+                { "action", new Dictionary<string, object>() {
+                    { "hyperliquidChain", ((bool) isTrue(isSandboxMode)) ? "Testnet" : "Mainnet" },
+                    { "signatureChainId", "0x66eee" },
+                    { "type", "approveAgent" },
+                    { "agentAddress", address },
+                    { "agentName", name },
+                    { "nonce", nonce },
+                } },
+                { "nonce", nonce },
+                { "signature", sig },
+            };
+        object approveAgentResponse = await this.privatePostExchange(payload);
+        return approveAgentResponse;
+    }
+    
+    public async virtual Task<object> approveAgentBySign(string name, string address,long nonce,object sig)
+    {
+        object isSandboxMode = this.safeBool(this.options, "sandboxMode");
+        object approveAgentPayload = string.IsNullOrWhiteSpace(address) ? new Dictionary<string, object>() {
+                { "hyperliquidChain", ((bool) isTrue(isSandboxMode)) ? "Testnet" : "Mainnet" },
+                { "agentName", name },
+                { "nonce", nonce },
+            } : new Dictionary<string, object>() {
+                { "hyperliquidChain", ((bool) isTrue(isSandboxMode)) ? "Testnet" : "Mainnet" },
+                { "agentAddress", address },
+                { "agentName", name },
+                { "nonce", nonce },
+            };
+        //object sig = this.buildApproveAgentSig(approveAgentPayload);
+        //object sig = this. signL1Action(approveAgentPayload,nonce);
+        object payload = string.IsNullOrWhiteSpace(address) ? new Dictionary<string, object>() {
+                { "action", new Dictionary<string, object>() {
+                    { "hyperliquidChain", ((bool) isTrue(isSandboxMode)) ? "Testnet" : "Mainnet" },
+                    { "signatureChainId", "0x66eee" },
+                    { "type", "approveAgent" },
+                    { "agentName", name },
+                    { "nonce", nonce },
+                } },
+                { "nonce", nonce },
+                { "signature", sig },
+            } : new Dictionary<string, object>() {
                 { "action", new Dictionary<string, object>() {
                     { "hyperliquidChain", ((bool) isTrue(isSandboxMode)) ? "Testnet" : "Mainnet" },
                     { "signatureChainId", "0x66eee" },
@@ -2816,6 +2910,12 @@ public partial class hyperliquid : Exchange
         //     "triggerPx": "0.6"
         // }
         //
+        if(order is string)
+        {
+            return this.safeOrder(new Dictionary<string, object>() {
+            { "info", order }
+            }, market);
+        }
         object entry = this.safeDictN(order, new List<object>() { "order", "resting", "filled" });
         if (isTrue(isEqual(entry, null)))
         {

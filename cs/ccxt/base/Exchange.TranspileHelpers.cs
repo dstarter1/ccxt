@@ -534,6 +534,10 @@ public partial class Exchange
         {
             return ((IList<string>)value).Count;
         }
+        else if (value is (IList<double>))
+        {
+            return ((IList<double>)value).Count;
+        }
         else if (value is (List<dict>))
         {
             return ((List<dict>)value).Count;
@@ -762,6 +766,17 @@ public partial class Exchange
                 return null;
             }
             return ((IList<object>)value)[parsed];
+        }
+        else if (value is IList<double>)
+        {
+            // check here if index is out of bounds
+            int parsed = Convert.ToInt32(key);
+            var listLength = getArrayLength(value);
+            if (parsed >= listLength)
+            {
+                return null;
+            }
+            return ((IList<double>)value)[parsed];
         }
         else if (value is IList<IList<object>>)
         {
