@@ -30,6 +30,25 @@ class Helper
 
     }
 
+    public static IEnumerable<object>? GetChildren(object data2)
+    {
+        var data = (IDictionary<string, object>)data2;
+        if (data.ContainsKey("children"))
+        {
+            return ((IEnumerable<object>)data["children"]);
+        }
+        else if(data.ContainsKey("order")) {
+            var order = data["order"];
+            if(order!=null && order is Dictionary<string, object>)
+            {
+                var dicOrder = (IDictionary<string, object>)order;
+                if(dicOrder.ContainsKey("children"))
+                    return ((IEnumerable<object>)dicOrder["children"]);
+            }
+        }
+        return null;
+    }
+
     public static Dictionary<string, Dictionary<string, List<OHLCV>>> ConvertToDictionaryOHLCVList(object data2)
     {
 
@@ -326,7 +345,7 @@ public struct Order
         reduceOnly = Exchange.SafeBool(order, "reduceOnly", false);
         postOnly = Exchange.SafeBool(order, "postOnly", false);
         info = Helper.GetInfo(order);
-        children = info.ContainsKey("children") ? ((IEnumerable<object>)info["children"]) : null;
+        children = Helper.GetChildren(info);
     }
 }
 
