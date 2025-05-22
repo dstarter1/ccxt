@@ -782,6 +782,21 @@ public partial class hyperliquid : Exchange
         });
     }
 
+    public async Task<object> fetchPortfolio(object parameters = null)
+    {
+        parameters ??= new Dictionary<string, object>();
+        object userAddress = null;
+        var userAddressparametersVariable = this.handlePublicAddress("fetchBalance", parameters);
+        userAddress = ((IList<object>)userAddressparametersVariable)[0];
+        parameters = ((IList<object>)userAddressparametersVariable)[1];
+        object request = new Dictionary<string, object>() {
+            { "type", "portfolio" },
+            { "user", userAddress },
+        };
+        object response = await this.publicPostInfo(this.extend(request, parameters));
+        return response;
+    }
+
     /**
      * @method
      * @name hyperliquid#fetchBalance
@@ -811,6 +826,7 @@ public partial class hyperliquid : Exchange
             { "user", userAddress },
         };
         object response = await this.publicPostInfo(this.extend(request, parameters));
+        
         //
         //     {
         //         "assetPositions": [],
