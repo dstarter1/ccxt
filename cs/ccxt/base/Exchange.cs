@@ -35,13 +35,22 @@ public partial class Exchange
     private void initHttpClient()
     {
         var handler = new HttpClientHandler { AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate };
-        if (this.httpProxy != null && this.httpProxy.ToString().Length > 0)
+        
+        if (this.httpProxy != null && this.httpProxy.ToString().Length>0)
         {
-            var proxy = new WebProxy(this.httpProxy.ToString());
+            string strProxy = this.httpProxy.ToString();
+            string[] proxyInfos = this.httpProxy.ToString().Split(',');
+            string endpoint = proxyInfos[0];
+            string userName = proxyInfos.Length > 1 ? proxyInfos[1] : "";
+            string pass = proxyInfos.Length > 2 ? proxyInfos[2] : "";
+            
+            var proxy = new WebProxy(endpoint);
+            if(!string.IsNullOrWhiteSpace(userName)&& !string.IsNullOrWhiteSpace(pass))
+                proxy.Credentials = new NetworkCredential(userName, pass);
             handler.Proxy = proxy;
             this.httpClient = new HttpClient(handler);
         }
-        else if (this.httpsProxy != null && this.httpsProxy.ToString().Length > 0)
+        else if (this.httpsProxy != null && this.httpProxy.ToString().Length > 0)
         {
             var proxy = new WebProxy(this.httpsProxy.ToString());
             handler.Proxy = proxy;

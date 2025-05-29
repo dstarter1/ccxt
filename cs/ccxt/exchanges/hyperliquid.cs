@@ -782,7 +782,7 @@ public partial class hyperliquid : Exchange
         });
     }
 
-    public async Task<object> fetchPortfolio(object parameters = null)
+    public async Task<object> fetchPortfolioAsync(object parameters = null)
     {
         parameters ??= new Dictionary<string, object>();
         object userAddress = null;

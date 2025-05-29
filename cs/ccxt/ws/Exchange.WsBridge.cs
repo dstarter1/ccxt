@@ -1,6 +1,7 @@
 namespace ccxt;
 using System.Net.WebSockets;
 using System.Collections.Concurrent;
+using System.Security.Cryptography.X509Certificates;
 
 public partial class Exchange
 {
@@ -137,7 +138,8 @@ public partial class Exchange
             wsOptions = this.deepExtend(this.streaming, wsOptions);
             var keepAlive = ((Int64)this.safeInteger(wsOptions, "keepAlive", 30000));
             var useMessageQueue = ((bool)this.safeBool(wsOptions, "useMessageQueue", true));
-            var client = new WebSocketClient(url, proxy, handleMessage, ping, onClose, onError, this.verbose, keepAlive, useMessageQueue);
+            var cert = (X509Certificate2)this.safeValue(this.options, "cert");
+            var client = new WebSocketClient(url, proxy,cert, handleMessage, ping, onClose, onError, this.verbose, keepAlive, useMessageQueue);
 
             var wsHeaders = this.safeValue(wsOptions, "headers", new Dictionary<string, object>() { });
             // iterate through headers

@@ -7,7 +7,7 @@ using System.Net.WebSockets;
 using System.Collections.Concurrent;
 using System.IO.Compression;
 using System.Net;
-
+using System.Security.Cryptography.X509Certificates;
 
 public partial class Exchange
 {
@@ -54,7 +54,7 @@ public partial class Exchange
 
         public bool error = false;
 
-        public WebSocketClient(string url, string proxy, handleMessageDelegate handleMessage, pingDelegate ping = null, onCloseDelegate onClose = null, onErrorDelegate onError = null, bool isVerbose = false, Int64 keepA = 30000, bool useMessageQueue = false)
+        public WebSocketClient(string url, string proxy, X509Certificate2? x509Certificate, handleMessageDelegate handleMessage, pingDelegate ping = null, onCloseDelegate onClose = null, onErrorDelegate onError = null, bool isVerbose = false, Int64 keepA = 30000, bool useMessageQueue = false)
         {
             this.url = url;
             var tcs = new TaskCompletionSource<bool>();
@@ -67,10 +67,20 @@ public partial class Exchange
             this.keepAlive = keepA;
             this.useMessageQueue = useMessageQueue;
 
-            if (proxy != null)
+            if (!string.IsNullOrWhiteSpace(proxy))
             {
-                var webProxy = new WebProxy(proxy);
+                string[] arr = proxy.Split(',');
+                string wsProxy = arr[0];
+                var webProxy = new WebProxy(wsProxy);
+                if (arr.Length==3)
+                {
+                    string user = arr[1];
+                    string pass = arr[2];
+                    webProxy.Credentials = new NetworkCredential(user,pass);
+                }
                 webSocket.Options.Proxy = webProxy;
+                if(x509Certificate!=null)
+                    webSocket.Options.ClientCertificates = new() { x509Certificate };
             }
         }
 
@@ -281,7 +291,7 @@ public partial class Exchange
                     Task.Run(async () =>
                     {
                         Receiving(webSocket);
-                    });
+                    }); 
                 }
                 catch (Exception ex)
                 {
