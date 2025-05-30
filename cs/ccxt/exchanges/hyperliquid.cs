@@ -2065,7 +2065,7 @@ public partial class hyperliquid : Exchange
         return approveAgentResponse;
     }
     
-    public async virtual Task<object> approveAgentBySign(string name, string address,long nonce,object sig)
+    public async virtual Task<object> approveAgentBySign(string name, string address,long nonce,object sig,string sigChainId)
     {
         object isSandboxMode = this.safeBool(this.options, "sandboxMode");
         object approveAgentPayload = string.IsNullOrWhiteSpace(address) ? new Dictionary<string, object>() {
@@ -2083,7 +2083,7 @@ public partial class hyperliquid : Exchange
         object payload = string.IsNullOrWhiteSpace(address) ? new Dictionary<string, object>() {
                 { "action", new Dictionary<string, object>() {
                     { "hyperliquidChain", ((bool) isTrue(isSandboxMode)) ? "Testnet" : "Mainnet" },
-                    { "signatureChainId", "0x66eee" },
+                    { "signatureChainId", sigChainId },
                     { "type", "approveAgent" },
                     { "agentName", name },
                     { "nonce", nonce },
@@ -2093,7 +2093,7 @@ public partial class hyperliquid : Exchange
             } : new Dictionary<string, object>() {
                 { "action", new Dictionary<string, object>() {
                     { "hyperliquidChain", ((bool) isTrue(isSandboxMode)) ? "Testnet" : "Mainnet" },
-                    { "signatureChainId", "0x66eee" },
+                    { "signatureChainId", sigChainId },
                     { "type", "approveAgent" },
                     { "agentAddress", address },
                     { "agentName", name },
